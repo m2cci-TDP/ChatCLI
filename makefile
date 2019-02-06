@@ -53,5 +53,8 @@ install:
 	mv $(OBJ) $(objClient) $(objServeur) $(dirBIN)/
 
 clean:
-	rm -f $(client) $(serveur) core
 	rm -f $(dirBIN)/*.o
+	rm -r $(dirBIN)
+
+mrproper:
+		rm -f $(client) $(serveur) core
