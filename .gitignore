@@ -2,6 +2,8 @@
 *.d
 
 # Object files
+bin/
+bin/*.o
 *.o
 *.ko
 *.obj
@@ -29,6 +31,8 @@
 *.dylib
 
 # Executables
+client
+serveur
 *.exe
 *.out
 *.app
