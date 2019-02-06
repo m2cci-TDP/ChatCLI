@@ -6,9 +6,10 @@ temporary repository for a network application
 `make clean`
 
 ## Execution
-`./client ipAdress (port or protocol)` <br/>
-`./serveur (port or protocol)`
+`./client [ipAdress] [port or protocol]` <br/>
+`./serveur [port or protocol]`
 
 ### Example
+`./client`
 `./client 192.0.1.1 udp` <br/>
 `./serveur udp`

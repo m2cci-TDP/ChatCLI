@@ -14,7 +14,7 @@
 
 /*=================== INCLUSIONS STANDARDS de PROTOTYPES =============*/
 #include <stdio.h>
-#include<unistd.h>
+#include <unistd.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -80,7 +80,7 @@ int h_sendto( int num_soc, char *tampon, int nb_octets,
 /*			    +===================+				*/
 /*==========================|  H_RECVFROM	|===============================*/
 /*			    +===================+				*/
-int h_recvfrom( int num_soc, char *tampon, int nb_octets,			
+int h_recvfrom( int num_soc, char *tampon, int nb_octets,
 				struct sockaddr_in *p_adr_distant );
 
 
@@ -92,7 +92,7 @@ void h_shutdown ( int socket, int sens ) ;
 /*			    +===================+				*/
 /*==========================|	H_CLOSE		|===============================*/
 /*			    +===================+				*/
-void h_close ( int socket ); 
+void h_close ( int socket );
 
 /*			    +===================+				*/
 /*==========================|	ADR_SOCKET	|===============================*/
