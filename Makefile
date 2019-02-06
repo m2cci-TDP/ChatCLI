@@ -52,9 +52,12 @@ install:
 	mkdir -p $(dirBIN)
 	mv $(OBJ) $(objClient) $(objServeur) $(dirBIN)/
 
+essaicurse:
+	$(CC) $(dirSRC)/EssaiCurses.c -o $@ -L/usr/ccs/lib -L/usr/ucblib  $(OPTIONS)
+
 clean:
 	rm -f $(dirBIN)/*.o
 	rm -r $(dirBIN)
 
 mrproper:
-		rm -f $(client) $(serveur) core
+		rm -f $(client) $(serveur) essaicurse core

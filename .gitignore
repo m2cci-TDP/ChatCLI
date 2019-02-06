@@ -33,6 +33,7 @@ bin/*.o
 # Executables
 client
 serveur
+essaicurse
 *.exe
 *.out
 *.app
