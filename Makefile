@@ -6,9 +6,10 @@ objServeur = $(dirSRC)/serveur.o
 OPTIONS	= -lcurses
 CFLAGS = -Iinclude
 CC = gcc
-client = client
-serveur = serveur
 dirBIN = bin
+
+appli = essaicurse
+srcAppli = $(dirSRC)/EssaiCurses.c
 
 # Adaptation a Darwin / MacOS X avec fink
 # Du fait de l'absence de libtermcap on se fait pas mal
@@ -31,33 +32,32 @@ OPTIONS	+= -ltermcap
 endif
 
 # Adaptation a Solaris
-
 ifeq ($(shell uname),SunOS)
 OPTIONS	+= -ltermcap  -lsocket -lnsl
 CFLAGS	+= -I..
 endif
 
-all: $(client) $(serveur) install
+all: client serveur install
 
 $(dirSRC)/%.o: %.c
 	$(CC) -DDEBUG $(CFLAGS) -c $<
 
-$(client): $(OBJ) $(objClient)
+client: $(OBJ) $(objClient)
 	$(CC) $(LFLAGS) -o $@ $^ $(OPTIONS)
 
-$(serveur): $(OBJ) $(objServeur)
+serveur: $(OBJ) $(objServeur)
 	$(CC) $(LFLAGS) -o $@ $^ $(OPTIONS)
 
 install:
 	mkdir -p $(dirBIN)
 	mv $(OBJ) $(objClient) $(objServeur) $(dirBIN)/
 
-essaicurse:
-	$(CC) $(dirSRC)/EssaiCurses.c -o $@ -L/usr/ccs/lib -L/usr/ucblib  $(OPTIONS)
+$(appli):
+	$(CC) $(srcAppli) -o $@ -L/usr/ccs/lib -L/usr/ucblib $(OPTIONS)
 
 clean:
 	rm -f $(dirBIN)/*.o
 	rm -r $(dirBIN)
 
 mrproper:
-		rm -f $(client) $(serveur) essaicurse core
+	rm -f client serveur $(appli)
