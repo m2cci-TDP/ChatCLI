@@ -45,8 +45,10 @@ int main(int argc, char *argv[])
 		} else if (isFlag(argv[i], "-p") || isFlag(argv[i], "--port")) {
 			service = argv[++i];
 		} else {
-			printf("Flag [%s] not recognized", argv[i]);
-			printf("Usage: client [OPTIONS]\n-t, --target <IPaddr>\t\tIP address of target\n-p, --port <port>\t\tport of target\n");
+			printf("Flag [%s] not recognized\n", argv[i]);
+			printf("Usage: client [OPTIONS]\n");
+			printf("-t, --target <IPaddr>\t\tIP address of target\n");
+			printf("-p, --port <port>\t\tport of target\n");
 			exit(1);
 		}
 	}
