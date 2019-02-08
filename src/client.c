@@ -90,7 +90,7 @@ void send_tcp (char *serveur, char *service)
 	printf("MODE D'ENVOI: TCP\n");
 	int noSocket = h_socket(AF_INET, SOCK_STREAM);
 	struct sockaddr_in *socket_target;
-	adr_socket(service, serveur, SOCK_STREAM, &socket_target);
+	adr_socket(SERVICE_DEFAUT, serveur, SOCK_STREAM, &socket_target);
 	sprintf(buffer_emission, "Salut mon loulou, je suis le message TCP %d :)", 1);
 	h_connect(noSocket, socket_target);
 //	int octetsLus = h_reads(noSocket, buffer_reception, BUFFER_SIZE);
