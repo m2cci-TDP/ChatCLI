@@ -67,14 +67,17 @@ int main(int argc, char *argv[])
 void client_appli (char *serveur, char *service)
 {
 	int noSocket = h_socket(AF_INET, SOCK_DGRAM);
-	struct sockaddr_in *p_addrSocket;
-	adr_socket(service, serveur, SOCK_DGRAM, &p_addrSocket);
-	h_bind(noSocket, p_addrSocket);
+	struct sockaddr_in *socket_target;
+	adr_socket(service, serveur, SOCK_DGRAM, &socket_target);
+
+
+	//h_bind(noSocket, p_addrSocket);
+
 	char message[BUFFER_SIZE+1];
 	for(int i = 0; i < 10; i++) {
-
 		sprintf(message, "Salut mon loulou, je suis le message %d :)", i);
-		h_sendto(noSocket, message, BUFFER_SIZE, p_addrSocket);
+		printf("Envoi de %s\n", message);
+		h_sendto(noSocket, message, BUFFER_SIZE, socket_target);
 	}
 	h_close(noSocket);
 }

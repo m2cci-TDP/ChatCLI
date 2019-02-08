@@ -68,9 +68,9 @@ void serveur_appli(char *service)
 	/* reception + lecture */
 	char tampon[L_TAMPON] = "";
 	for (int i = 0; i < 10; i++) {
-		sleep(10);
+		//sleep(10);
 		struct sockaddr_in *p_adr_distant; /* adresse de la machine distante pour une réponse */
-		int nbOctRecus = h_recvfrom(numSocket, tampon, sizeof(tampon)*L_TAMPON, p_adr_distant);
+		int nbOctRecus = h_recvfrom(numSocket, tampon, L_TAMPON, p_adr_distant);
 		if (nbOctRecus == -1) {
 			fprintf (stderr, "Erreur lors de la réception de la socket.\n");
 		} else {
