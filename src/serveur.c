@@ -13,7 +13,6 @@
 
 #include <stdio.h>
 #include <curses.h>
-#include <string.h>
 
 #include <sys/signal.h>
 #include <sys/wait.h>
@@ -21,16 +20,11 @@
 #include <unistd.h>
 
 #include "fon.h"     		/* Primitives de la boite a outils */
-
-#define SERVICE_DEFAUT "1111"
-#define L_TAMPON 2000
-#define NB_CON 5
+#include "util.h"
 
 void serveur_appli (char *service);   /* programme serveur */
 void serveur_udp (char *service);
 void serveur_tcp (char *service);
-
-char tampon[L_TAMPON] = "";
 
 /******************************************************************************/
 /*---------------- programme serveur ------------------------------*/
@@ -40,18 +34,7 @@ int main(int argc,char *argv[])
 	char *service = SERVICE_DEFAUT; /* numero de service par defaut */
 
 	/* Permet de passer un nombre de parametre variable a l'executable */
-	switch (argc)
-	{
-		case 1:
-		printf("defaut service = %s\n", service);
-		break;
-		case 2:
-		service = argv[1];
-		break;
-		default :
-		printf("Usage:serveur service (nom ou port) \n");
-		exit(1);
-	}
+	cli(argc, argv, &service, NULL);
 
 	/* service est le service (ou numero de port) auquel sera affecte ce serveur*/
 	serveur_appli(service);
@@ -63,7 +46,7 @@ int main(int argc,char *argv[])
 /* Procedure correspondant au traitemnt du serveur de votre application */
 void serveur_appli(char *service)
 {
-	if (strcmp(service, "tcp") == 0) {
+	if (isFlag(service, "tcp")) {
 		serveur_tcp(service);
 	} else {
 		serveur_udp(service);
@@ -71,10 +54,11 @@ void serveur_appli(char *service)
 }
 
 void serveur_udp (char *service) {
+	printf("SERVEUR UDP\n");
 	/* SOCK_DGRAM = UDP */
 	int numSocket = h_socket(AF_INET, SOCK_DGRAM); /* création de la socket */
 	struct sockaddr_in *p_adr_socket;
-	if (strcmp(service, "udp") == 0) {
+	if (isFlag(service, "udp")) {
 		service = SERVICE_DEFAUT;
 	}
 	adr_socket(service, NULL, SOCK_DGRAM, &p_adr_socket); /* création de l'adresse de la socket */
@@ -83,12 +67,14 @@ void serveur_udp (char *service) {
 	/* reception + lecture */
 	for (int i = 0; i < 10; i++) {
 		struct sockaddr_in p_adr_distant; /* adresse de la machine distante pour une réponse */
-		int nbOctRecus = h_recvfrom(numSocket, tampon, L_TAMPON, &p_adr_distant);
+		int nbOctRecus = h_recvfrom(numSocket, bufferReception, BUFFER_SIZE, &p_adr_distant);
 		if (nbOctRecus == -1) {
 			fprintf(stderr, "Erreur lors de la réception de la socket.\n");
 		} else {
+			#ifdef DEBUG
 			printf("Nombres d'octets reçus : %d\n", nbOctRecus);
-			printf("%s\n", tampon);
+			#endif
+			printf("%s\n", bufferReception);
 		}
 	}
 
@@ -96,10 +82,11 @@ void serveur_udp (char *service) {
 }
 
 void serveur_tcp (char *service) {
+	printf("SERVEUR TCP\n");
 	/* SOCK_STREAM = UDP */
 	int numSocket = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
 	struct sockaddr_in *p_adr_serveur;
-	if (strcmp(service, "tcp") == 0) {
+	if (isFlag(service, "tcp")) {
 		service = SERVICE_DEFAUT;
 	}
 	adr_socket(service, NULL, SOCK_STREAM, &p_adr_serveur); /* création de l'adresse de la socket */
@@ -118,21 +105,25 @@ void serveur_tcp (char *service) {
 		int status;
 		waitpid(p, &status, 0);
 		h_close(numSocket);
+		#ifdef DEBUG
 		fprintf(stderr, "Connection terminée.\n");
+		#endif
 	} else {
 		/* code du fils */
 		struct sockaddr_in p_adr_client;
 		int numSocketClient = h_accept(numSocket, &p_adr_client);
 
-		int nbOctRecus = h_reads(numSocketClient, tampon, L_TAMPON);
+		int nbOctRecus = h_reads(numSocketClient, bufferReception, BUFFER_SIZE);
 		if (nbOctRecus == -1) {
 			fprintf(stderr, "Erreur lors de la réception de la socket.\n");
 		} else {
+			#ifdef DEBUG
 			printf("Nombres d'octets reçus : %d\n", nbOctRecus);
-			printf("%s\n", tampon);
+			#endif
+			printf("%s\n", bufferReception);
 
-			sprintf(tampon, "%s\nBien reçu !", tampon);
-			h_writes(numSocketClient, tampon, L_TAMPON);
+			sprintf(bufferEmission, "%s\nBien reçu !", bufferReception);
+			h_writes(numSocketClient, bufferEmission, BUFFER_SIZE);
 		}
 
 		h_close(numSocketClient);
