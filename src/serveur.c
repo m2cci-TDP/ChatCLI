@@ -17,10 +17,12 @@
 #include <sys/signal.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "fon.h"     		/* Primitives de la boite a outils */
 
 #define SERVICE_DEFAUT "1111"
+#define L_TAMPON 2000
 
 void serveur_appli (char *service);   /* programme serveur */
 
@@ -30,9 +32,7 @@ void serveur_appli (char *service);   /* programme serveur */
 
 int main(int argc,char *argv[])
 {
-
 	char *service= SERVICE_DEFAUT; /* numero de service par defaut */
-
 
 	/* Permet de passer un nombre de parametre variable a l'executable */
 	switch (argc)
@@ -49,10 +49,9 @@ int main(int argc,char *argv[])
 		exit(1);
 	}
 
-	/* service est le service (ou numero de port) auquel sera affecte
-	ce serveur*/
-
+	/* service est le service (ou numero de port) auquel sera affecte ce serveur*/
 	serveur_appli(service);
+	return 0;
 }
 
 
@@ -60,9 +59,27 @@ int main(int argc,char *argv[])
 /* Procedure correspondant au traitemnt du serveur de votre application */
 void serveur_appli(char *service)
 {
+	/* SOCK_DGRAM = UDP */
+	int numSocket = h_socket(AF_INET, SOCK_DGRAM); /* création de la socket */
+	struct sockaddr_in *p_adr_socket;
+	adr_socket(service, NULL, SOCK_DGRAM, &p_adr_socket); /* création de l'adresse de la socket */
+	h_bind(numSocket, p_adr_socket); /* association de la socket et de son adresse */
 
-	/* A completer ... */
+	/* reception + lecture */
+	char tampon[L_TAMPON] = "";
+	for (int i = 0; i < 10; i++) {
+		sleep(10);
+		struct sockaddr_in *p_adr_distant; /* adresse de la machine distante pour une réponse */
+		int nbOctRecus = h_recvfrom(numSocket, tampon, sizeof(tampon)*L_TAMPON, p_adr_distant);
+		if (nbOctRecus == -1) {
+			fprintf (stderr, "Erreur lors de la réception de la socket.\n");
+		} else {
+			printf("Nombres d'octets reçus : %d\n", nbOctRecus);
+			printf("%s\n", tampon);
+		}
+	}
 
+	h_close(numSocket); /* fermeture */
 }
 
 /******************************************************************************/
