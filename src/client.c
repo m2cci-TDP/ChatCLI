@@ -16,6 +16,7 @@
 #include <sys/signal.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "fon.h"   		/* primitives de la boite a outils */
 
@@ -62,24 +63,34 @@ int main(int argc, char *argv[])
 	client_appli(serveur,service);
 }
 #define BUFFER_SIZE 2000
-/*****************************************************************************/
-/* procedure correspondant au traitement du client de votre application */
-void client_appli (char *serveur, char *service)
+char buffer_emission[BUFFER_SIZE+1];
+char buffer_reception[BUFFER_SIZE+1];
+
+void send_tcp (char *serveur, char *service)
+{
+}
+void send_udp (char *serveur, char *service)
 {
 	int noSocket = h_socket(AF_INET, SOCK_DGRAM);
 	struct sockaddr_in *socket_target;
 	adr_socket(service, serveur, SOCK_DGRAM, &socket_target);
-
-
-	//h_bind(noSocket, p_addrSocket);
-
-	char message[BUFFER_SIZE+1];
 	for(int i = 0; i < 10; i++) {
-		sprintf(message, "Salut mon loulou, je suis le message %d :)", i);
-		printf("Envoi de %s\n", message);
-		h_sendto(noSocket, message, BUFFER_SIZE, socket_target);
+		sprintf(buffer_emission, "Salut mon loulou, je suis le message %d :)", i);
+	#ifdef DEBUG
+		printf("Envoi de %s\n", buffer_emission);
+	#endif
+		h_sendto(noSocket, buffer_emission, BUFFER_SIZE, socket_target);
 	}
 	h_close(noSocket);
 }
-
+/*****************************************************************************/
+/* procedure correspondant au traitement du client de votre application */
+void client_appli (char *serveur, char *service)
+{
+	if (strcmp(service, "tcp") == 0) {
+		send_tcp(serveur, service);
+	} else {
+		send_udp(serveur, service);
+	}
+}
 /*****************************************************************************/
