@@ -29,25 +29,38 @@ void client_appli (char *serveur, char *service);
 /*****************************************************************************/
 /*--------------- programme client -----------------------*/
 
+int isFlag(char* string, char* flag){
+	return strcmp(string, flag) == 0;
+}
+
 int main(int argc, char *argv[])
 {
 
 	char *serveur= SERVEUR_DEFAUT; /* serveur par defaut */
 	char *service= SERVICE_DEFAUT; /* numero de service par defaut (no de port) */
 
+	for (int i=1; i<argc; i++){
+		if(isFlag(argv[i], "-t") || isFlag(argv[i], "--target")){
+			serveur = argv[++i];
+		} else if (isFlag(argv[i], "-p") || isFlag(argv[i], "--port")) {
+			port = argv[++i];
+		} else {
+			printf("Usage: client [OPTIONS]\n\t-t, --target\t\tIP address of target\n\t-p, --port\t\tport of target");
+		}
+	}
 
 	/* Permet de passer un nombre de parametre variable a l'executable */
-	switch(argc)
+/*	switch(argc)
 	{
-		case 1 :		/* arguments par defaut */
+		case 1 :
 		printf("serveur par defaut: %s\n",serveur);
 		printf("service par defaut: %s\n",service);
 		break;
-		case 2 :		/* serveur renseigne  */
+		case 2 :
 		serveur=argv[1];
 		printf("service par defaut: %s\n",service);
 		break;
-		case 3 :		/* serveur, service renseignes */
+		case 3 :
 		serveur=argv[1];
 		service=argv[2];
 		break;
@@ -55,7 +68,7 @@ int main(int argc, char *argv[])
 		printf("Usage:client serveur(nom ou @IP)  service (nom ou port) \n");
 		exit(1);
 	}
-
+*/
 	/* serveur est le nom (ou l'adresse IP) auquel le client va acceder */
 	/* service le numero de port sur le serveur correspondant au  */
 	/* service desire par le client */
@@ -68,6 +81,14 @@ char buffer_reception[BUFFER_SIZE+1];
 
 void send_tcp (char *serveur, char *service)
 {
+	int noSocket = h_socket(AF_INET, SOCK_STREAM);
+	struct sockaddr_in *socket_target;
+	adr_socket(service, serveur, SOCK_STREAM, &socket_target);
+	sprintf(buffer_emission, "Salut mon loulou, je suis le message TCP %d :)", 1);
+	h_connect(noSocket, socket_target);
+//	int octetsLus = h_reads(noSocket, buffer_reception, BUFFER_SIZE);
+	h_writes(noSocket, buffer_emission, BUFFER_SIZE);
+	h_close(noSocket);
 }
 void send_udp (char *serveur, char *service)
 {
@@ -75,10 +96,10 @@ void send_udp (char *serveur, char *service)
 	struct sockaddr_in *socket_target;
 	adr_socket(service, serveur, SOCK_DGRAM, &socket_target);
 	for(int i = 0; i < 10; i++) {
-		sprintf(buffer_emission, "Salut mon loulou, je suis le message %d :)", i);
-	#ifdef DEBUG
+		sprintf(buffer_emission, "Salut mon loulou, je suis le message UDP %d :)", i);
+		#ifdef DEBUG
 		printf("Envoi de %s\n", buffer_emission);
-	#endif
+		#endif
 		h_sendto(noSocket, buffer_emission, BUFFER_SIZE, socket_target);
 	}
 	h_close(noSocket);
