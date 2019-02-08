@@ -38,19 +38,22 @@ int main(int argc, char *argv[])
 
 	char *serveur= SERVEUR_DEFAUT; /* serveur par defaut */
 	char *service= SERVICE_DEFAUT; /* numero de service par defaut (no de port) */
-/*
+
 	for (int i=1; i<argc; i++){
 		if(isFlag(argv[i], "-t") || isFlag(argv[i], "--target")){
 			serveur = argv[++i];
 		} else if (isFlag(argv[i], "-p") || isFlag(argv[i], "--port")) {
-			port = argv[++i];
+			service = argv[++i];
 		} else {
-			printf("Usage: client [OPTIONS]\n\t-t, --target\t\tIP address of target\n\t-p, --port\t\tport of target");
+			printf("Flag [%s] not recognized", argv[i]);
+			printf("Usage: client [OPTIONS]\n-t, --target <IPaddr>\t\tIP address of target\n-p, --port <port>\t\tport of target\n");
+			exit(1);
 		}
-	}*/
+	}
 
+	printf("serveur: %s, port: %s\n", serveur, service);
 	/* Permet de passer un nombre de parametre variable a l'executable */
-	switch(argc)
+/*	switch(argc)
 	{
 		case 1 :
 		printf("serveur par defaut: %s\n",serveur);
@@ -68,19 +71,21 @@ int main(int argc, char *argv[])
 		printf("Usage:client serveur(nom ou @IP)  service (nom ou port) \n");
 		exit(1);
 	}
-
+*/
 	/* serveur est le nom (ou l'adresse IP) auquel le client va acceder */
 	/* service le numero de port sur le serveur correspondant au  */
 	/* service desire par le client */
 
 	client_appli(serveur,service);
 }
+
 #define BUFFER_SIZE 2000
 char buffer_emission[BUFFER_SIZE+1];
 char buffer_reception[BUFFER_SIZE+1];
 
 void send_tcp (char *serveur, char *service)
 {
+	printf("MODE D'ENVOI: TCP\n");
 	int noSocket = h_socket(AF_INET, SOCK_STREAM);
 	struct sockaddr_in *socket_target;
 	adr_socket(service, serveur, SOCK_STREAM, &socket_target);
@@ -90,8 +95,10 @@ void send_tcp (char *serveur, char *service)
 	h_writes(noSocket, buffer_emission, BUFFER_SIZE);
 	h_close(noSocket);
 }
+
 void send_udp (char *serveur, char *service)
 {
+	printf("MODE D'ENVOI: UDP\n");
 	int noSocket = h_socket(AF_INET, SOCK_DGRAM);
 	struct sockaddr_in *socket_target;
 	adr_socket(service, serveur, SOCK_DGRAM, &socket_target);
