@@ -19,7 +19,7 @@
 
 #include "fon.h"   		/* primitives de la boite a outils */
 
-#define SERVICE_DEFAUT "1111"
+#define SERVICE_DEFAUT "56432"
 #define SERVEUR_DEFAUT "127.0.0.1"
 
 void client_appli (char *serveur, char *service);
@@ -61,12 +61,38 @@ int main(int argc, char *argv[])
 
 	client_appli(serveur,service);
 }
-
+#define BUFFERSIZE 1024
 /*****************************************************************************/
 /* procedure correspondant au traitement du client de votre application */
 void client_appli (char *serveur,char *service)
 {
+	char tamponLecture [BUFFERSIZE+1];
+	char tamponEcriture [BUFFERSIZE+1];
+	int nb_octets;
+	struct sockaddr_in *socket_target;
+	
+	int num_soc;
+	int stop=1;
+	int envoi;
+	/*printf("choisissez le mode SOCK_STREAM (tcp) ou SOCK_DGRAM (udp)");
+	scanf(%d,typesock);*/
 
+	num_soc = h_socket(AF_INET,SOCK_STREAM);
+	
+	adr_socket (service, serveur, SOCK_STREAM,&socket_target);
+		
+	h_connect(num_soc,socket_target);
+	
+	
+	while (stop !=0 || envoi!=0){
+		
+		stop=h_reads(num_soc,tamponLecture,BUFFERSIZE);
+	
+		
+		envoi=write(num_soc,tamponEcriture,BUFFERSIZE);
+	}
+
+	h_close(num_soc);
 
 	/* a completer .....  */
 
