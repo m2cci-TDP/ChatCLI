@@ -13,8 +13,8 @@
 
 /* Modif P. Sicard 11 97:
 	-probleme de l'allocation par le systeme en cas de numero de
-port a 0 
-	- probleme dans le bind sizeof (struct sockaddr) 
+port a 0
+	- probleme dans le bind sizeof (struct sockaddr)
 	- probleme de hton dans adr_sock */
 /* Modif03/2005 P. Sicard : pb de libraire varargs obsolete (sous LINUX et MacOSX Darwin) */
 /* remplacement par stdarg.h , voir sortie_err*/
@@ -28,7 +28,7 @@ port a 0
 /********************************************************************************/
 /*										*/
 /*	h_socket  : Creer la prise de communication ou socket	( socket )	*/
-/*	h_bind    : Associer une socket a ses adresses(@IP,port)( bind )	*/ 				 
+/*	h_bind    : Associer une socket a ses adresses(@IP,port)( bind )	*/
 /*	h_connect : Demander une connection (a un serveur. TCP) ( connect )	*/
 /*	h_listen  : Mettre un serveur en ecoute sur une prise	( listen )	*/
 /*	h_accept  : Accepter, cote serveur, une connection	( accept )	*/
@@ -43,10 +43,10 @@ port a 0
 /********************************************************************************/
 /*	routine de renseignement des adresses socket du processus serveur       */
 /* 										*/
-/*	adr_socket: renseigne la structure d'adresses socket			*/ 
+/*	adr_socket: renseigne la structure d'adresses socket			*/
 /********************************************************************************/
 
-/* Les inclusions de fichiers standards ( entrees/sorties et sockets ) sont 
+/* Les inclusions de fichiers standards ( entrees/sorties et sockets ) sont
 	effectuees dans le fichier de prototypage FON.H 			*/
 
 #include<stdio.h>
@@ -103,7 +103,7 @@ int h_socket ( int domaine, int mode )
 
 
 #ifdef DEBUG
-	printf("\n%s H_SOCKET (debut) -------------------\n",aff_debug); 
+	printf("\n%s H_SOCKET (debut) -------------------\n",aff_debug);
 	printf("%s domaine : %d mode : %d \n",aff_debug,domaine,mode);
 #endif
 
@@ -116,8 +116,8 @@ setsockopt(res, SOL_SOCKET, SO_REUSEADDR, (char *) &sendbuff, sizeof(sendbuff));
 
 	if ( res < 0 ) printf ( "\nERREUR 'h_socket' : Creation socket impossible \n" );
 #ifdef DEBUG
-	printf("%s H_SOCKET (fin) ----- socket %d cree ---\n",aff_debug,res); 
-#endif	
+	printf("%s H_SOCKET (fin) ----- socket %d cree ---\n",aff_debug,res);
+#endif
 	return res;
 }
 
@@ -125,16 +125,16 @@ setsockopt(res, SOL_SOCKET, SO_REUSEADDR, (char *) &sendbuff, sizeof(sendbuff));
 /*			    +===================+				*/
 /*==========================|	H_BIND		|===============================*/
 /*			    +===================+				*/
-/*										*/	
+/*										*/
 /*  Associe une socket (numero de socket) et ses adresses (@IP, port)		*/
 /*										*/
 /*  En mode connecte ( TCP ) 							*/
-/*  Procedure reservee au serveur ( le socket client sera automatiquement lie 	*/ 
+/*  Procedure reservee au serveur ( le socket client sera automatiquement lie 	*/
 /*   lors de l'appel a h_connect c.a.d. connect )				*/
 /*										*/
 /*  En mode non connecte ( UDP ) 						*/
 /*  Procedure utilisee par le serveur, et par le client s'il envisage ensuite 	*/
-/*	de converser avec les procedures read et write ( comme en connecte )	*/ 
+/*	de converser avec les procedures read et write ( comme en connecte )	*/
 /*										*/
 /* ENTREE									*/
 /*	num_soc	: 	Numero identifiant la socket				*/
@@ -154,16 +154,16 @@ void h_bind ( int num_soc, struct sockaddr_in *p_adr_socket )
 
 
 #ifdef DEBUG
-	printf("\n%sH_BIND (debut)\n",aff_debug);	
+	printf("\n%sH_BIND (debut)\n",aff_debug);
 	printf ("%ssocket : %d \n",aff_debug,num_soc);
-	
+
 	/* PS2011: Inet_ntoa obsolete-printf("%sadresse IP : %s \n",aff_debug,inet_ntoa(p_adr_socket->sin_addr));*/
 	inet_ntop(AF_INET, &(p_adr_socket->sin_addr),str,INET_ADDRSTRLEN);
 	printf("%sadresse IP : %s \n",aff_debug,str);
-	
+
 	printf("%sport : %d OK \n", aff_debug, ntohs(p_adr_socket->sin_port));
 #endif
-	
+
 	res=bind( num_soc, (struct sockaddr *)p_adr_socket, sizeof(struct
 	sockaddr_in) ); /* Modif PS */
 
@@ -184,7 +184,7 @@ if	(!getsockname (num_soc,  (struct sockaddr *)&s, (socklen_t *)&lensa))
 
 
 #ifdef DEBUG
-	printf("%sH_BIND (fin)  \n",aff_debug); 
+	printf("%sH_BIND (fin)  \n",aff_debug);
 #endif
 }
 
@@ -206,30 +206,30 @@ if	(!getsockname (num_soc,  (struct sockaddr *)&s, (socklen_t *)&lensa))
 /********************************************************************************/
 void h_connect( int num_soc, struct sockaddr_in *p_adr_serv)
 {
-	
+
 	int res;		/* Entier resultat de l'operation 	*/
 	char str[INET_ADDRSTRLEN];
 
 
 #ifdef DEBUG
-	printf("\n%sH_CONNECT (debut) -------------------\n",aff_debug); 
+	printf("\n%sH_CONNECT (debut) -------------------\n",aff_debug);
 	printf ("%ssocket : %d \n",aff_debug,num_soc);
 	/* PS 2011: Inet_ntoa obsolete */
 	inet_ntop(AF_INET, &(p_adr_serv->sin_addr),str,INET_ADDRSTRLEN);
 	printf("%sadresse IP serveur: %s \n",aff_debug,str);
-	
+
 	printf("%sport service : %d OK \n", aff_debug, ntohs(p_adr_serv->sin_port));
 #endif
-	
+
 	res = connect ( num_soc, (struct sockaddr *)p_adr_serv, sizeof(struct sockaddr) );
-	
+
 	if ( res < 0 ) {
 			inet_ntop(AF_INET, &(p_adr_serv->sin_addr),str,INET_ADDRSTRLEN);
 			printf( "\nERREUR 'h_connect' : connexion serveur %s impossible\n"
 				   ,str);}
 
 #ifdef DEBUG
-	printf("%sH_CONNECT (fin) -------------------\n",aff_debug); 	
+	printf("%sH_CONNECT (fin) -------------------\n",aff_debug);
 #endif
 
 }
@@ -259,15 +259,15 @@ void h_listen ( int num_soc, int nb_req_att )
 
 
 #ifdef DEBUG
-	printf("\n%sH_LISTEN (debut) -------------------\n",aff_debug); 
+	printf("\n%sH_LISTEN (debut) -------------------\n",aff_debug);
 #endif
 
 	res = listen( num_soc, nb_req_att );
-	if ( res < 0 ) 
+	if ( res < 0 )
 	  	printf("\nERREUR 'h_listen' : ecoute sur socket %d impossible \n",num_soc );
 
 #ifdef DEBUG
-	printf("%sH_LISTEN (fin)\n",aff_debug); 
+	printf("%sH_LISTEN (fin)\n",aff_debug);
 #endif
 }
 
@@ -295,21 +295,21 @@ int h_accept( int num_soc, struct sockaddr_in *p_adr_client )
 	int res;			/* Entier resultat de l'operation 	*/
 
 #ifdef DEBUG
-	printf("\n%sH_ACCEPT (debut)\n",aff_debug); 
+	printf("\n%sH_ACCEPT (debut)\n",aff_debug);
 #endif
 
 	longueur = sizeof( struct sockaddr );
 	res = accept ( num_soc, (struct sockaddr *)p_adr_client, (socklen_t *)&longueur );
-	if ( res < 0 ) 
+	if ( res < 0 )
 	  printf ( "\nERREUR 'h_accept' : Acceptation impossible \n" );
 
 #ifdef DEBUG
 	printf("%sH_ACCEPT (fin)\n",aff_debug);
 #endif
 
-	
+
 	return res ;
-	
+
 }
 
 
@@ -338,7 +338,7 @@ int h_reads ( int num_soc, char *tampon, int nb_octets )
 
 #ifdef DEBUG
 	printf("\n%sH_READS (debut) 	-------------------\n",aff_debug);
-	printf("%sH_READS nb_octets : %d \n",aff_debug, nb_octets); 
+	printf("%sH_READS nb_octets : %d \n",aff_debug, nb_octets);
 #endif
 
 
@@ -366,7 +366,7 @@ int h_reads ( int num_soc, char *tampon, int nb_octets )
 		if (nb_lus==0)
 		{
 #ifdef DEBUG
-	printf("%sH_READS (fin) 	-------------------\n",aff_debug); 
+	printf("%sH_READS (fin) 	-------------------\n",aff_debug);
 #endif
 			return (nb_octets-nb_restant);
 		}
@@ -376,7 +376,7 @@ int h_reads ( int num_soc, char *tampon, int nb_octets )
 
 
 #ifdef DEBUG
-	printf("%sH_READS (fin) 	-------------------\n",aff_debug); 
+	printf("%sH_READS (fin) 	-------------------\n",aff_debug);
 #endif
 
 	return (nb_octets-nb_restant);
@@ -408,7 +408,7 @@ int h_writes ( int num_soc, char *tampon, int nb_octets )
 
 
 #ifdef DEBUG
-	printf("\n%sH_WRITES (debut) 	-------------------\n",aff_debug); 
+	printf("\n%sH_WRITES (debut) 	-------------------\n",aff_debug);
 #endif
 
 
@@ -416,19 +416,19 @@ int h_writes ( int num_soc, char *tampon, int nb_octets )
 	while ( nb_restant > 0 )
 	{
 		nb_ecrits = write ( num_soc, tampon, nb_restant );
-						
-		if ( nb_ecrits<0 ) 
+
+		if ( nb_ecrits<0 )
 		{
 				printf( "\nERREUR 'Ecrire_mes' : ecriture socket %d impossible\n", num_soc );
 				return (nb_ecrits);
-		}	  
+		}
 
 		nb_restant = nb_restant - nb_ecrits;
 		tampon = tampon + nb_ecrits;
 	}
 
 #ifdef DEBUG
-	printf("%sH_WRITES (fin) 	-------------------\n",aff_debug); 
+	printf("%sH_WRITES (fin) 	-------------------\n",aff_debug);
 #endif
 
 
@@ -451,8 +451,7 @@ int h_writes ( int num_soc, char *tampon, int nb_octets )
 /*	SORTIE	Nombre d'octets effectivement emis 				*/
 /*	     	( le rapport d'execution est envoye sur la console )		*/
 /********************************************************************************/
-int h_sendto( int num_soc, char * tampon, int nb_octets,
-						struct sockaddr_in *p_adr_distant )
+int h_sendto( int num_soc, char * tampon, int nb_octets, struct sockaddr_in *p_adr_distant )
 {
 	int res;		/* Entier resultat de l'operation 	*/
 
@@ -460,18 +459,18 @@ int h_sendto( int num_soc, char * tampon, int nb_octets,
 
 
 #ifdef DEBUG
-	printf("\n%sH_SENDTO (debut)\n",aff_debug); 
+	printf("\n%sH_SENDTO (debut)\n",aff_debug);
 #endif
 
 
 	res = sendto( num_soc, tampon, nb_octets, 0, (struct sockaddr *) p_adr_distant,
 					 	sizeof(*p_adr_distant) );
-	if ( res < 0 ) 
+	if ( res < 0 )
 	  printf( "\nERREUR 'h_sendto' : emission socket %d impossible\n",
 	 							num_soc );
 
 #ifdef DEBUG
-	printf("%sH_SENDTO (fin)\n",aff_debug); 
+	printf("%sH_SENDTO (fin)\n",aff_debug);
 #endif
 
 
@@ -503,19 +502,19 @@ int h_recvfrom( int num_soc, char * tampon, int nb_octets, struct sockaddr_in *p
 
 
 #ifdef DEBUG
-	printf("\n%sH_RECVFROM (debut)\n",aff_debug); 
+	printf("\n%sH_RECVFROM (debut)\n",aff_debug);
 #endif
 
 
 	taille = sizeof(*p_adr_distant);
 	res = recvfrom( num_soc, tampon, nb_octets, 0, (struct sockaddr *) p_adr_distant, (socklen_t *)&taille );
-	if ( res < 0 ) 
+	if ( res < 0 )
 	  printf( "\nERREUR 'h_recvfrom' : reception socket %d impossible\n",
 								 num_soc );
 
 
 #ifdef DEBUG
-	printf("%sH_RECVFROM (fin)\n",aff_debug); 
+	printf("%sH_RECVFROM (fin)\n",aff_debug);
 #endif
 
 	return res;
@@ -550,16 +549,16 @@ void h_shutdown ( int num_soc, int sens )
 
 
 #ifdef DEBUG
-	printf("\n%s H_SHUTDOWN (debut)\n",aff_debug); 
+	printf("\n%s H_SHUTDOWN (debut)\n",aff_debug);
 #endif
 
 	res = shutdown ( num_soc, sens );
-	if ( res < 0 ) 
+	if ( res < 0 )
 	  printf( "\nERREUR 'h_shutdown' : fermeture socket %d impossible\n",
 								 num_soc );
 
 #ifdef DEBUG
-	printf("%s H_SHUTDOWN (fin)\n",aff_debug); 
+	printf("%s H_SHUTDOWN (fin)\n",aff_debug);
 #endif
 
 }
@@ -581,16 +580,16 @@ void h_close ( int num_soc )
 
 
 #ifdef DEBUG
-	printf("\n%s H_CLOSE (debut)\n",aff_debug); 
+	printf("\n%s H_CLOSE (debut)\n",aff_debug);
 #endif
 
 	res = close ( num_soc );
-	if ( res < 0 ) 
+	if ( res < 0 )
 	  printf( "\nERREUR 'h_close' : fermeture socket %d impossible\n",
 								 num_soc );
 
 #ifdef DEBUG
-	printf("%s H_CLOSE (fin)\n",aff_debug); 
+	printf("%s H_CLOSE (fin)\n",aff_debug);
 #endif
 
 }
@@ -636,8 +635,7 @@ par adr_serv */
 /********************************************************************************/
 
 
-void adr_socket ( char *service, char *nom, int typesock,
-		  struct sockaddr_in **p_adr_serv)
+void adr_socket ( char *service, char *nom, int typesock, struct sockaddr_in **p_adr_serv)
 {
     struct addrinfo hints; /* info à passer a getaddrinfo */
     struct addrinfo *res; /* permet de recuperer les adresses a l aide de getaddrinfo */
@@ -645,7 +643,7 @@ void adr_socket ( char *service, char *nom, int typesock,
     int s;
     void *addr;
 
-	
+
 #ifdef DEBUG
 	printf("\n%s ADR_SOCKET (debut) .........\n",aff_debug);
 #endif
@@ -674,7 +672,7 @@ void adr_socket ( char *service, char *nom, int typesock,
         exit(EXIT_FAILURE);
     }
     *p_adr_serv=(struct sockaddr_in *)res->ai_addr;
-    
+
 #ifdef DEBUG
     if (res->ai_family == AF_INET) { // IPv4
         struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
@@ -686,23 +684,20 @@ void adr_socket ( char *service, char *nom, int typesock,
         addr = &(ipv6->sin6_addr);
         ipver = '6';
     }
-    
+
     // Conversion de l'adresse IP en une chaîne de caractères
     inet_ntop(res->ai_family, addr, ipstr, sizeof ipstr);
-    
+
 	printf("%s adresse IPv%c : %s OK..........\n",aff_debug,ipver,ipstr);
 
 #endif
 
-	
+
 
 #ifdef DEBUG
 	printf("%s port : %d OK .........\n", aff_debug, ntohs((*p_adr_serv)->sin_port)); /*Modif PS */
-	printf("%s ADR_SOCKET (fin) .........\n",aff_debug); 
+	printf("%s ADR_SOCKET (fin) .........\n",aff_debug);
 #endif
 
 /*Pas terrible les structures pointees par res ne sont pas liberees */
 }
-
-
-
