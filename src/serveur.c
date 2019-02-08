@@ -48,7 +48,6 @@ int main(int argc,char *argv[])
 		case 2:
 		service = argv[1];
 		break;
-
 		default :
 		printf("Usage:serveur service (nom ou port) \n");
 		exit(1);
@@ -75,6 +74,9 @@ void serveur_udp (char *service) {
 	/* SOCK_DGRAM = UDP */
 	int numSocket = h_socket(AF_INET, SOCK_DGRAM); /* création de la socket */
 	struct sockaddr_in *p_adr_socket;
+	if (strcmp(service, "udp") == 0) {
+		service = SERVICE_DEFAUT;
+	}
 	adr_socket(service, NULL, SOCK_DGRAM, &p_adr_socket); /* création de l'adresse de la socket */
 	h_bind(numSocket, p_adr_socket); /* association de la socket et de son adresse */
 
@@ -95,9 +97,12 @@ void serveur_udp (char *service) {
 
 void serveur_tcp (char *service) {
 	/* SOCK_STREAM = UDP */
-	int numSocket = h_socket(AF_INET, SOCK_DGRAM); /* création de la socket */
+	int numSocket = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
 	struct sockaddr_in *p_adr_serveur;
-	adr_socket(service, NULL, SOCK_DGRAM, &p_adr_serveur); /* création de l'adresse de la socket */
+	if (strcmp(service, "tcp") == 0) {
+		service = SERVICE_DEFAUT;
+	}
+	adr_socket(service, NULL, SOCK_STREAM, &p_adr_serveur); /* création de l'adresse de la socket */
 	h_bind(numSocket, p_adr_serveur); /* association de la socket et de son adresse */
 	h_listen(numSocket, NB_CON);
 
