@@ -52,6 +52,17 @@ void send_tcp (char *serveur, char *service)
 	h_connect(noSocket, socket_target);
 	//	int octetsLus = h_reads(noSocket, bufferReception, BUFFER_SIZE);
 	h_writes(noSocket, bufferEmission, BUFFER_SIZE);
+
+	int nbOctRecus = h_reads(noSocket, bufferReception, BUFFER_SIZE);
+	if (nbOctRecus == -1) {
+		fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+	} else {
+		#ifdef DEBUG
+		printf("Nombres d'octets reçus : %d\n", nbOctRecus);
+		#endif
+		printf("%s\n", bufferReception);
+	}
+
 	h_close(noSocket);
 }
 

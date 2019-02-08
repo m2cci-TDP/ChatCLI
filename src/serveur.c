@@ -93,41 +93,52 @@ void serveur_tcp (char *service) {
 	h_bind(numSocket, p_adr_serveur); /* association de la socket et de son adresse */
 	h_listen(numSocket, NB_CON);
 
-	pid_t p = fork();
-	if (p < 0)
-	{
-		fprintf(stderr, "Erreur lors de la connection.\n");
-	}
-	else if (p != 0)
-	{
-		/* p = pid du fils
-		code du père */
-		int status;
-		waitpid(p, &status, 0);
-		h_close(numSocket);
-		#ifdef DEBUG
-		fprintf(stderr, "Connection terminée.\n");
-		#endif
-	} else {
-		/* code du fils */
-		struct sockaddr_in p_adr_client;
-		int numSocketClient = h_accept(numSocket, &p_adr_client);
 
-		int nbOctRecus = h_reads(numSocketClient, bufferReception, BUFFER_SIZE);
-		if (nbOctRecus == -1) {
-			fprintf(stderr, "Erreur lors de la réception de la socket.\n");
-		} else {
+	struct sockaddr_in p_adr_client;
+	int numSocketClient = 0;
+	int otherConnect = 1;
+	while (otherConnect && (numSocketClient = h_accept(numSocket, &p_adr_client)) != -1) {
+		pid_t p = fork();
+		if (p < 0)
+		{
+			fprintf(stderr, "Erreur lors de la connection.\n");
+		}
+		else if (p != 0)
+		{
+			/* p = pid du fils
+			code du père */
+			int status;
+			h_close(numSocketClient); /* fermeture de la socket ouverte */
+			waitpid(p, &status, 0);
 			#ifdef DEBUG
-			printf("Nombres d'octets reçus : %d\n", nbOctRecus);
+			fprintf(stderr, "Connection terminée.\n");
 			#endif
-			printf("%s\n", bufferReception);
+		} else {
+			/* code du fils */
+			int nbOctRecus = h_reads(numSocketClient, bufferReception, BUFFER_SIZE); /* lecture du message */
+			if (nbOctRecus == -1) {
+				fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+			} else {
+				#ifdef DEBUG
+				printf("Nombres d'octets reçus : %d\n", nbOctRecus);
+				#endif
+				printf("%s\n", bufferReception);
 
-			sprintf(bufferEmission, "%s\nBien reçu !", bufferReception);
-			h_writes(numSocketClient, bufferEmission, BUFFER_SIZE);
+				/* accusé de réception */
+				sprintf(bufferEmission, "%s\nBien reçu !", bufferReception);
+				h_writes(numSocketClient, bufferEmission, BUFFER_SIZE);
+			}
+			h_close(numSocketClient); /* fermeture de la socket ouverte */
+			exit(0);
 		}
 
-		h_close(numSocketClient);
+		/* reboucler */
+		printf("Attendez-vous une autre connection ? [O/n] ");
+		char reponse;
+		scanf("%s", &reponse);
+		otherConnect = (reponse == 'O') ? 1 : 0;
 	}
+	h_close(numSocket); /* fermeture de la socket en attente */
 }
 
 /******************************************************************************/
