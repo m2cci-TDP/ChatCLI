@@ -64,13 +64,14 @@ void serveur_appli(char *service)
 	struct sockaddr_in *p_adr_socket;
 	adr_socket(service, NULL, SOCK_DGRAM, &p_adr_socket); /* création de l'adresse de la socket */
 	h_bind(numSocket, p_adr_socket); /* association de la socket et de son adresse */
-
+	int taille = 0;
+	int nbOctRecus=0;
 	/* reception + lecture */
 	char tampon[L_TAMPON] = "";
+	struct sockaddr_in p_adr_distant; /* adresse de la machine distante pour une réponse */
 	for (int i = 0; i < 10; i++) {
 		//sleep(10);
-		struct sockaddr_in *p_adr_distant; /* adresse de la machine distante pour une réponse */
-		int nbOctRecus = h_recvfrom(numSocket, tampon, L_TAMPON, p_adr_distant);
+		int nbOctRecus = h_recvfrom(numSocket, tampon, L_TAMPON, &p_adr_distant);
 		if (nbOctRecus == -1) {
 			fprintf (stderr, "Erreur lors de la réception de la socket.\n");
 		} else {
