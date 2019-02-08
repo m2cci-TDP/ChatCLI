@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
 	char *serveur= SERVEUR_DEFAUT; /* serveur par defaut */
 	char *service= SERVICE_DEFAUT; /* numero de service par defaut (no de port) */
-
+/*
 	for (int i=1; i<argc; i++){
 		if(isFlag(argv[i], "-t") || isFlag(argv[i], "--target")){
 			serveur = argv[++i];
@@ -47,10 +47,10 @@ int main(int argc, char *argv[])
 		} else {
 			printf("Usage: client [OPTIONS]\n\t-t, --target\t\tIP address of target\n\t-p, --port\t\tport of target");
 		}
-	}
+	}*/
 
 	/* Permet de passer un nombre de parametre variable a l'executable */
-/*	switch(argc)
+	switch(argc)
 	{
 		case 1 :
 		printf("serveur par defaut: %s\n",serveur);
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 		printf("Usage:client serveur(nom ou @IP)  service (nom ou port) \n");
 		exit(1);
 	}
-*/
+
 	/* serveur est le nom (ou l'adresse IP) auquel le client va acceder */
 	/* service le numero de port sur le serveur correspondant au  */
 	/* service desire par le client */
