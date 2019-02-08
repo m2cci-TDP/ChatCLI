@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 /* procedure correspondant au traitement du client de votre application */
 void client_appli (char *serveur, char *service)
 {
-	int noSocket = h_socket(AF_UNIX, SOCK_DGRAM);
+	int noSocket = h_socket(AF_INET, SOCK_DGRAM);
 	struct sockaddr_in *p_addrSocket;
 	adr_socket(service, serveur, SOCK_DGRAM, &p_addrSocket);
 	h_bind(noSocket, p_addrSocket);
