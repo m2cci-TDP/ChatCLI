@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "util.h"
 
 int isFlag (char* string, char* flag) {
 	return strcmp(string, flag) == 0;
