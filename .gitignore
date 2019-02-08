@@ -2,8 +2,8 @@
 *.d
 
 # Object files
-bin/
-bin/*.o
+lib/
+lib/*.o
 *.o
 *.ko
 *.obj
@@ -31,9 +31,10 @@ bin/*.o
 *.dylib
 
 # Executables
-client
-serveur
-essaicurse
+bin/client
+bin/serveur
+bin/essaicurse
+bin
 *.exe
 *.out
 *.app

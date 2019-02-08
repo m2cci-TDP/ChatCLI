@@ -7,6 +7,7 @@ OPTIONS	= -lcurses
 CFLAGS = -Iinclude
 CC = gcc
 dirBIN = bin
+dirLIB = lib
 
 appli = essaicurse
 srcAppli = $(dirSRC)/EssaiCurses.c
@@ -49,15 +50,19 @@ serveur: $(OBJ) $(objServeur)
 	$(CC) $(LFLAGS) -o $@ $^ $(OPTIONS)
 
 install:
-	mkdir -p $(dirBIN)
-	mv $(OBJ) $(objClient) $(objServeur) $(dirBIN)/
+	mkdir -p $(dirBIN) $(dirLIB)
+	mv $(OBJ) $(objClient) $(objServeur) $(dirLIB)/
+	mv client serveur $(dirBIN)/
 
 $(appli):
 	$(CC) $(srcAppli) -o $@ -L/usr/ccs/lib -L/usr/ucblib $(OPTIONS)
+	mkdir -p $(dirLIB)
+	mv $(appli) $(dirBIN)/
 
 clean:
-	rm -f $(dirBIN)/*.o
-	rm -r $(dirBIN)
+	rm -f $(dirLIB)/*.o
+	rm -r $(dirLIB)
 
 mrproper:
-	rm -f client serveur $(appli)
+	rm -f $(dirBIN)/client $(dirBIN)/serveur $(dirBIN)/$(appli)
+	rm -r $(dirBIN)

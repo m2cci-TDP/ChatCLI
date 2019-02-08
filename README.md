@@ -6,12 +6,13 @@ temporary repository for a network application
 `make clean`
 
 ## Execution
+`cd bin` <br/>
 `./client [ipAdress] [port or protocol]` <br/>
 `./serveur [port or protocol]`
 
 ### Example
-`./client`
-`./client 192.0.1.1 udp` <br/>
+`cd bin` <br/>
+`./client` or `./client 192.0.1.1 udp` <br/>
 `./serveur udp`
 
 ## Other
