@@ -30,6 +30,8 @@ void serveur_appli (char *service);   /* programme serveur */
 void serveur_udp (char *service);
 void serveur_tcp (char *service);
 
+char tampon[L_TAMPON] = "";
+
 /******************************************************************************/
 /*---------------- programme serveur ------------------------------*/
 
@@ -77,7 +79,6 @@ void serveur_udp (char *service) {
 	h_bind(numSocket, p_adr_socket); /* association de la socket et de son adresse */
 
 	/* reception + lecture */
-	char tampon[L_TAMPON] = "";
 	for (int i = 0; i < 10; i++) {
 		struct sockaddr_in p_adr_distant; /* adresse de la machine distante pour une réponse */
 		int nbOctRecus = h_recvfrom(numSocket, tampon, L_TAMPON, &p_adr_distant);
@@ -111,11 +112,25 @@ void serveur_tcp (char *service) {
 		code du père */
 		int status;
 		waitpid(p, &status, 0);
+		h_close(numSocket);
 		fprintf(stderr, "Connection terminée.\n");
 	} else {
 		/* code du fils */
 		struct sockaddr_in p_adr_client;
-		h_accept(numSocket, &p_adr_client);
+		int numSocketClient = h_accept(numSocket, &p_adr_client);
+
+		int nbOctRecus = h_reads(numSocketClient, tampon, L_TAMPON);
+		if (nbOctRecus == -1) {
+			fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+		} else {
+			printf("Nombres d'octets reçus : %d\n", nbOctRecus);
+			printf("%s\n", tampon);
+
+			sprintf(tampon, "%s\nBien reçu !", tampon);
+			h_writes(numSocketClient, tampon, L_TAMPON);
+		}
+
+		h_close(numSocketClient);
 	}
 }
 
