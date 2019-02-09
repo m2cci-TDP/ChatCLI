@@ -1,0 +1,94 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <unistd.h>
+#include "fon.h"
+#include "chat.h"
+#include "util.h"
+
+void serverChat (int socket) {
+  struct sockaddr_in p_adr_client;
+  int socketClient = 0;
+
+  while ((socketClient = h_accept(socket, &p_adr_client)) != -1) {
+    pid_t p = fork();
+    if (p < 0) {
+      fprintf(stderr, "Erreur lors de la connection.\n");
+    } else if (p == 0) {
+      /* code du fils */
+      char name[BUFFER_SIZE];
+      int nbOctRecus = h_reads(socketClient, bufferReception, BUFFER_SIZE); /* lecture du message pseudo */
+      if (nbOctRecus == -1) {
+        fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+      } else {
+        strcpy(name, bufferReception);
+      }
+
+      /* chat */
+      printf("%s entre dans le chat.\n", name);
+      while (!isFlag(bufferReception, ".")) {
+        int nbOctRecus = h_reads(socketClient, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
+        if (nbOctRecus == -1) {
+          fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+        } else {
+          sprintf(bufferEmission, "%s : %s\n", name, bufferReception);
+          h_writes(socketClient, bufferEmission, BUFFER_SIZE);
+        }
+      }
+
+      printf("%s quitte le chat.\n", name);
+      h_close(socketClient); /* fermeture de la socket ouverte */
+      exit(0);
+    }
+
+    /* p = pid du fils code du père */
+    h_close(socketClient); /* fermeture de la socket ouverte */
+  }
+}
+
+void clientChat (int socket) {
+  printf("Bienvenue dans le client de chat !\n");
+  printf("Veuillez entrez votre pseudo : ");
+  setMessage(bufferEmission);
+  h_writes(socket, bufferEmission, BUFFER_SIZE);
+  printf("\nVous avez choisi \"%s\" comme nom.\n", bufferEmission);
+  printf("Vous pouvez quitter l'application à tout moment en tapant le caractère \".\".\n\n");
+
+  while (!isFlag(bufferEmission, ".")) {
+    printf("Votre message : ");
+    setMessage(bufferEmission);
+    printf("ecriture => %s\n", bufferEmission);
+    h_writes(socket, bufferEmission, BUFFER_SIZE);
+
+    /* reception */
+    int nbOctRecus = h_reads(socket, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
+    if (nbOctRecus == -1) {
+      fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+    } else {
+      /* écriture */
+      printf("%s\n", bufferReception);
+    }
+  }
+  printf("\nA bientôt !\nMerci d'avoir utiliser le chat !\n");
+}
+
+
+void setMessage (char message[]) {
+  char c;
+  if ((c = getchar()) != '\n' && c != EOF) {
+    strcpy(message, &c);
+  }
+  while ((c = getchar()) != '\n' && c != EOF)
+  {
+    strcat(message, &c);
+  }
+  viderBuffer();
+}
+
+void viderBuffer(void)
+{
+  char poubelle;
+  do poubelle = getchar();
+  while (poubelle != '\n' && poubelle != EOF);
+}

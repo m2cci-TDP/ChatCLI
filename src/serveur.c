@@ -13,7 +13,6 @@
 
 #include <stdio.h>
 #include <curses.h>
-
 #include <sys/signal.h>
 #include <sys/wait.h>
 #include <stdlib.h>
@@ -21,10 +20,12 @@
 
 #include "fon.h"     		/* Primitives de la boite a outils */
 #include "util.h"
+#include "chat.h"
 
 void serveur_appli (char *service);   /* programme serveur */
 void serveur_udp (char *service);
 void serveur_tcp (char *service);
+void serveur_tcp_chat (char *service);
 
 /******************************************************************************/
 /*---------------- programme serveur ------------------------------*/
@@ -47,7 +48,8 @@ int main(int argc,char *argv[])
 void serveur_appli(char *service)
 {
 	if (isFlag(service, "tcp")) {
-		serveur_tcp(service);
+		//serveur_tcp(service);
+		serveur_tcp_chat(service);
 	} else {
 		serveur_udp(service);
 	}
@@ -81,6 +83,21 @@ void serveur_udp (char *service) {
 	h_close(numSocket); /* fermeture */
 }
 
+void serveur_tcp_chat (char *service) {
+	printf("SERVEUR TCP DE CHAT\n");
+	/* SOCK_STREAM = UDP */
+	int numSocket = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
+	struct sockaddr_in *p_adr_serveur;
+	if (isFlag(service, "tcp")) {
+		service = SERVICE_DEFAUT;
+	}
+	adr_socket(service, NULL, SOCK_STREAM, &p_adr_serveur); /* création de l'adresse de la socket */
+	h_bind(numSocket, p_adr_serveur); /* association de la socket et de son adresse */
+	h_listen(numSocket, NB_CON);
+	serverChat(numSocket);
+	h_close(numSocket); /* fermeture de la socket en attente */
+}
+
 void serveur_tcp (char *service) {
 	printf("SERVEUR TCP\n");
 	/* SOCK_STREAM = UDP */
@@ -96,21 +113,15 @@ void serveur_tcp (char *service) {
 
 	struct sockaddr_in p_adr_client;
 	int numSocketClient = 0;
-	int otherConnect = 1;
-	while (otherConnect && (numSocketClient = h_accept(numSocket, &p_adr_client)) != -1) {
+	/* otherConnect non util, le serveur peut rester allumer et on peut l'éteindre avec un Ctrl+C : la socket se ferme aussi */
+	// int otherConnect = 1;
+	// while (otherConnect && (numSocketClient = h_accept(numSocket, &p_adr_client)) != -1) {
+	while ((numSocketClient = h_accept(numSocket, &p_adr_client)) != -1) {
 		pid_t p = fork();
 		if (p < 0) {
 			fprintf(stderr, "Erreur lors de la connection.\n");
-		}
-		else if (p != 0) {
-			/* p = pid du fils
-			code du père */
-			int status;
-			h_close(numSocketClient); /* fermeture de la socket ouverte */
-			waitpid(p, &status, 0);
-			#ifdef DEBUG
-			fprintf(stderr, "Connection terminée.\n");
-			#endif
+		} else if (p != 0) {
+
 		} else {
 			/* code du fils */
 			int nbOctRecus = h_reads(numSocketClient, bufferReception, BUFFER_SIZE); /* lecture du message */
@@ -130,12 +141,21 @@ void serveur_tcp (char *service) {
 			exit(0);
 		}
 
-		/* reboucler */
+		/* p = pid du fils
+		code du père */
+		// int status;
+		h_close(numSocketClient); /* fermeture de la socket ouverte */
+		// waitpid(p, &status, 0);
+		#ifdef DEBUG
+		fprintf(stderr, "Connection terminée.\n");
+		#endif
+		/* reboucler */ /*
 		printf("Attendez-vous une autre connection ? [O/n] ");
 		char reponse;
 		scanf("%s", &reponse);
-		otherConnect = (reponse == 'O') ? 1 : 0;
+		otherConnect = (reponse == 'O') ? 1 : 0; */
 	}
+
 	h_close(numSocket); /* fermeture de la socket en attente */
 }
 

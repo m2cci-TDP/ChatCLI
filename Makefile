@@ -1,6 +1,6 @@
 
 dirSRC = src
-OBJ = $(dirSRC)/fon.o $(dirSRC)/util.o
+OBJ = $(dirSRC)/fon.o $(dirSRC)/util.o $(dirSRC)/chat.o
 objClient = $(dirSRC)/client.o
 objServeur = $(dirSRC)/serveur.o
 OPTIONS	= -lcurses
