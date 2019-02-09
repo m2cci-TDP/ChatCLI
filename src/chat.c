@@ -58,7 +58,6 @@ void clientChat (int socket) {
   while (!isFlag(bufferEmission, ".")) {
     printf("Votre message : ");
     setMessage(bufferEmission);
-    printf("ecriture => %s\n", bufferEmission);
     h_writes(socket, bufferEmission, BUFFER_SIZE);
 
     /* reception */
@@ -83,7 +82,7 @@ void setMessage (char message[]) {
   {
     strcat(message, &c);
   }
-  viderBuffer();
+  //viderBuffer();
 }
 
 void viderBuffer(void)
