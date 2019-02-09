@@ -99,12 +99,10 @@ void serveur_tcp (char *service) {
 	int otherConnect = 1;
 	while (otherConnect && (numSocketClient = h_accept(numSocket, &p_adr_client)) != -1) {
 		pid_t p = fork();
-		if (p < 0)
-		{
+		if (p < 0) {
 			fprintf(stderr, "Erreur lors de la connection.\n");
 		}
-		else if (p != 0)
-		{
+		else if (p != 0) {
 			/* p = pid du fils
 			code du père */
 			int status;

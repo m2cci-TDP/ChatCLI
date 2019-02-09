@@ -66,6 +66,29 @@ void send_tcp (char *serveur, char *service)
 	h_close(noSocket);
 }
 
+/* test double connection */
+void send_tcp_double (char *serveur, char *service)
+{
+	printf("MODE D'ENVOI : TCP\n");
+	struct sockaddr_in *socket_target;
+	adr_socket(SERVICE_DEFAUT, serveur, SOCK_STREAM, &socket_target);
+
+	int noSocket1 = h_socket(AF_INET, SOCK_STREAM);
+	int noSocket2 = h_socket(AF_INET, SOCK_STREAM);
+	h_connect(noSocket1, socket_target);
+	h_connect(noSocket2, socket_target);
+
+	sprintf(bufferEmission, "Salut mon loulou, je suis le message TCP %d :)", 1);
+	h_writes(noSocket1, bufferEmission, BUFFER_SIZE);
+
+	sprintf(bufferEmission, "Salut mon loulou, je suis le message TCP %d :)", 2);
+	h_writes(noSocket2, bufferEmission, BUFFER_SIZE);
+
+	h_close(noSocket1);
+	h_close(noSocket2);
+}
+
+
 void send_udp (char *serveur, char *service)
 {
 	printf("MODE D'ENVOI : UDP\n");
@@ -86,7 +109,8 @@ void send_udp (char *serveur, char *service)
 void client_appli (char *serveur, char *service)
 {
 	if (isFlag(service, "tcp")) {
-		send_tcp(serveur, service);
+		//send_tcp(serveur, service);
+		send_tcp_double(serveur, service);
 	} else {
 		send_udp(serveur, service);
 	}
