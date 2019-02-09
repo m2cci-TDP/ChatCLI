@@ -35,7 +35,7 @@ void serverChat (int socket) {
         if (nbOctRecus == -1) {
           fprintf(stderr, "Erreur lors de la réception de la socket.\n");
         } else {
-          sprintf(bufferEmission, "%s : %s\n", name, bufferReception);
+          sprintf(bufferEmission, "%s : %s", name, bufferReception);
           h_writes(socketClient, bufferEmission, BUFFER_SIZE);
         }
       }
@@ -61,6 +61,9 @@ void clientChat (int socket) {
   while (!isFlag(bufferEmission, ".")) {
     printf("Votre message : ");
     setMessage(bufferEmission);
+    printf("\033[1A"); // move cursor one ligne up
+    printf("\x0d"); // move the cursor in first column
+    printf("\033[K"); // erase the ligne
     h_writes(socket, bufferEmission, BUFFER_SIZE);
 
     /* reception */
