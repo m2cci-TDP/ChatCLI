@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 #include "fon.h"
 #include "chat.h"
 #include "util.h"
@@ -26,7 +27,9 @@ void serverChat (int socket) {
       }
 
       /* chat */
-      printf("%s entre dans le chat.\n", name);
+      char str[INET_ADDRSTRLEN];
+      inet_ntop(AF_INET, &p_adr_client.sin_addr, str, INET_ADDRSTRLEN);
+      printf("%s (%s) entre dans le chat.\n", name, str);
       while (!isFlag(bufferReception, ".")) {
         int nbOctRecus = h_reads(socketClient, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
         if (nbOctRecus == -1) {
