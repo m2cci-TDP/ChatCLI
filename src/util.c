@@ -39,3 +39,23 @@ void cli (int argc, char *argv[], char **service, char **serveur) {
   }
   printf("port: %s\n", *service);
 }
+
+/* liste chainée */
+int getLength (lSocket S) {
+
+}
+void makeLSocket (lSocket *S) {
+
+}
+void rmLSocket (lSocket *S) {
+
+}
+void setSocket (lSocket *S, int socket) {
+
+}
+void rmSocket (lSocket *S, int socket) {
+
+}
+int getSocket (lSocket S, int noSocket) {
+
+}

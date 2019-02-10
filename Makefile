@@ -1,3 +1,4 @@
+.PHONY: test
 
 dirSRC = src
 OBJ = $(dirSRC)/fon.o $(dirSRC)/util.o $(dirSRC)/chat.o
@@ -58,6 +59,11 @@ $(appli):
 	$(CC) $(srcAppli) -o $@ -L/usr/ccs/lib -L/usr/ucblib $(OPTIONS)
 	mkdir -p $(dirLIB)
 	mv $(appli) $(dirBIN)/
+
+test:
+	make -C test
+	./test/check
+	make -C test clean
 
 clean:
 	rm -f $(dirLIB)/*.o

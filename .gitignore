@@ -35,6 +35,7 @@ bin/client
 bin/serveur
 bin/essaicurse
 bin
+test/check
 *.exe
 *.out
 *.app
