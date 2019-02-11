@@ -20,7 +20,6 @@
 
 #include "fon.h"   		/* primitives de la boite a outils */
 #include "util.h"
-#include "chat.h"
 
 void client_appli (char *serveur, char *service);
 
@@ -64,16 +63,6 @@ void send_tcp (char *serveur, char *service)
 		printf("%s\n", bufferReception);
 	}
 
-	h_close(noSocket);
-}
-
-void send_tcp_chat (char *serveur, char *service)
-{
-	int noSocket = h_socket(AF_INET, SOCK_STREAM);
-	struct sockaddr_in *socket_target;
-	adr_socket(SERVICE_DEFAUT, serveur, SOCK_STREAM, &socket_target);
-	h_connect(noSocket, socket_target);
-	clientChat(noSocket);
 	h_close(noSocket);
 }
 
@@ -121,8 +110,7 @@ void client_appli (char *serveur, char *service)
 {
 	if (isFlag(service, "tcp")) {
 		//send_tcp(serveur, service);
-		//send_tcp_double(serveur, service);
-		send_tcp_chat(serveur, service);
+		send_tcp_double(serveur, service);
 	} else {
 		send_udp(serveur, service);
 	}

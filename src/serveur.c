@@ -20,7 +20,6 @@
 
 #include "fon.h"     		/* Primitives de la boite a outils */
 #include "util.h"
-#include "chat.h"
 
 void serveur_appli (char *service);   /* programme serveur */
 void serveur_udp (char *service);
@@ -48,8 +47,7 @@ int main(int argc,char *argv[])
 void serveur_appli(char *service)
 {
 	if (isFlag(service, "tcp")) {
-		//serveur_tcp(service);
-		serveur_tcp_chat(service);
+		serveur_tcp(service);
 	} else {
 		serveur_udp(service);
 	}
@@ -81,41 +79,6 @@ void serveur_udp (char *service) {
 	}
 
 	h_close(numSocket); /* fermeture */
-}
-
-void serveur_tcp_chat (char *service) {
-	printf("SERVEUR TCP DE CHAT\n");
-	/* SOCK_STREAM = UDP */
-	int numSocket = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
-	struct sockaddr_in *p_adr_serveur;
-	if (isFlag(service, "tcp")) {
-		service = SERVICE_DEFAUT;
-	}
-	adr_socket(service, NULL, SOCK_STREAM, &p_adr_serveur); /* création de l'adresse de la socket */
-	h_bind(numSocket, p_adr_serveur); /* association de la socket et de son adresse */
-	h_listen(numSocket, NB_CON);
-
-	/* création du processus serveur */
-	pid_t p = fork();
-	if (p < 0) {
-		fprintf(stderr, "Erreur lors de la création du processus serveur.\n");
-	} else if (p == 0) {
-		/* fils */
-		while (1) {
-			serverChat(numSocket);
-		}
-	}
-	/* père */
-	char stop;
-	printf("Appuyez sur \"q\" pour arrêter.\n");
-	do {
-		/* boucle d'arrêt */
-		stop = getchar();
-		viderBuffer();
-	}	while (stop != 'q');
-	kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
-	h_close(numSocket); /* fermeture de la socket en attente */
-	printf("FIN SERVEUR TCP DE CHAT\n");
 }
 
 void serveur_tcp (char *service) {

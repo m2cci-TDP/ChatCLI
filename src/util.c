@@ -29,37 +29,44 @@ void viderBuffer(void)
 	while (poubelle != '\n' && poubelle != EOF);
 }
 
-void cli (int argc, char *argv[], char **service, char **serveur) {
-	char *mode = strstr(argv[0], "client");
-	if (mode == NULL) {
-		mode = strstr(argv[0], "serveur");
-	}
-
+/*
+0 == server => server = NULL
+1 == client
+*/
+int cli (int argc, char *argv[], char **service, char **serveur) {
+	int mode;
+	/* faire erreur
 	if (serveur == NULL && isFlag(mode, "client")) {
 		fprintf(stderr, "L'attribut \"serveur\" doit être instancié.\n");
 		exit(1);
 	}
+	*/
 
 	for (int i = 1; i < argc; i++) {
-		if (isFlag(mode, "client") && isFlag(argv[i], "-t") || isFlag(argv[i], "--target")) {
+		if (isFlag(argv[i], "-t") || isFlag(argv[i], "--target")) {
 			*serveur = argv[++i];
 		} else if (isFlag(argv[i], "-p") || isFlag(argv[i], "--port")) {
 			*service = argv[++i];
-			//printf("%s\n", service);
+		} else if (isFlag(argv[i], "-c") || isFlag(argv[i], "--client")) {
+			mode = 1;
+		} else if (isFlag(argv[i], "-s") || isFlag(argv[i], "--server")) {
+			mode = 0;
 		} else {
 			printf("Flag [%s] not recognized\n", argv[i]);
-			printf("Usage: %s [OPTIONS]\n", mode);
-			if (isFlag(mode, "client")) {
-				printf("-t, --target <IPaddr>\t\tIP address of target\n");
-			}
+			printf("Usage: [OPTIONS]\n");
+			printf("-s, --server\t\tmode server\n");
+			printf("-c, --client\t\tmode client\n");
+			printf("-t, --target <IPaddr>\t\tIP address of target if client (-c)\n");
 			printf("-p, --port <port>\t\tport\n");
 			exit(1);
 		}
 	}
-	if (isFlag(mode, "client")) {
+	if (mode) {
 		printf("serveur: %s, ", *serveur);
 	}
 	printf("port: %s\n", *service);
+
+	return mode;
 }
 
 /* liste chainée */

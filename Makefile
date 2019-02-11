@@ -1,9 +1,10 @@
 .PHONY: test
 
 dirSRC = src
-OBJ = $(dirSRC)/fon.o $(dirSRC)/util.o $(dirSRC)/chat.o
+OBJ = $(dirSRC)/fon.o $(dirSRC)/util.o
 objClient = $(dirSRC)/client.o
 objServeur = $(dirSRC)/serveur.o
+objChat = $(dirSRC)/chat.o
 OPTIONS	= -lcurses
 CFLAGS = -Iinclude
 CC = gcc
@@ -39,7 +40,7 @@ OPTIONS	+= -ltermcap  -lsocket -lnsl
 CFLAGS	+= -I..
 endif
 
-all: client serveur install
+all: chat client serveur install
 
 $(dirSRC)/%.o: %.c
 	$(CC) -DDEBUG $(CFLAGS) -c $<
@@ -50,10 +51,13 @@ client: $(OBJ) $(objClient)
 serveur: $(OBJ) $(objServeur)
 	$(CC) $(LFLAGS) -o $@ $^ $(OPTIONS)
 
+chat: $(OBJ) $(objChat)
+	$(CC) $(LFLAGS) -o $@ $^ $(OPTIONS)
+
 install:
 	mkdir -p $(dirBIN) $(dirLIB)
-	mv $(OBJ) $(objClient) $(objServeur) $(dirLIB)/
-	mv client serveur $(dirBIN)/
+	mv $(OBJ) $(objClient) $(objServeur) $(objChat) $(dirLIB)/
+	mv client serveur chat $(dirBIN)/
 
 $(appli):
 	$(CC) $(srcAppli) -o $@ -L/usr/ccs/lib -L/usr/ucblib $(OPTIONS)

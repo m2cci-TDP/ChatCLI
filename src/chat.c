@@ -2,11 +2,65 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <unistd.h>
+#include <sys/signal.h>
 #include <arpa/inet.h>
 #include "fon.h"
 #include "chat.h"
 #include "util.h"
+
+int main (int argc,char *argv[]) {
+  	char *serveur = SERVEUR_DEFAUT; /* serveur par defaut */
+  	char *service = SERVICE_DEFAUT; /* numero de service par defaut (no de port) */
+
+    if (cli(argc, argv, &service, &serveur)) {
+      clientTCP(service, serveur);
+    } else {
+      serverTCP(service);
+    }
+
+    return 0;
+}
+
+void serverTCP (char *service) {
+	printf("SERVEUR TCP DE CHAT\n");
+	/* SOCK_STREAM = UDP */
+	int numSocket = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
+	struct sockaddr_in *p_adr_serveur;
+	adr_socket(SERVICE_DEFAUT, NULL, SOCK_STREAM, &p_adr_serveur); /* création de l'adresse de la socket */
+	h_bind(numSocket, p_adr_serveur); /* association de la socket et de son adresse */
+	h_listen(numSocket, NB_CON);
+
+	/* création du processus serveur */
+	pid_t p = fork();
+	if (p < 0) {
+		fprintf(stderr, "Erreur lors de la création du processus serveur.\n");
+	} else if (p == 0) {
+		/* fils */
+		while (1) {
+			serverChat(numSocket);
+		}
+	}
+	/* père */
+	char stop;
+	printf("Appuyez sur \"q\" pour arrêter.\n");
+	do {
+		/* boucle d'arrêt */
+		stop = getchar();
+		viderBuffer();
+	}	while (stop != 'q');
+	kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
+	h_close(numSocket); /* fermeture de la socket en attente */
+	printf("FIN SERVEUR TCP DE CHAT\n");
+}
+
+void clientTCP (char *serveur, char *service) {
+	int noSocket = h_socket(AF_INET, SOCK_STREAM);
+	struct sockaddr_in *socket_target;
+	adr_socket(SERVICE_DEFAUT, serveur, SOCK_STREAM, &socket_target);
+	h_connect(noSocket, socket_target);
+	clientChat(noSocket);
+	h_close(noSocket);
+}
 
 void serverChat (int socket) {
   struct sockaddr_in p_adr_client;
