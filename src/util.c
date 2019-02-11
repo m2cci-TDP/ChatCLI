@@ -52,10 +52,12 @@ int cli (int argc, char *argv[], char **service, char **serveur) {
 		} else if (isFlag(argv[i], "-s") || isFlag(argv[i], "--server")) {
 			mode = 0;
 		} else {
-			printf("Flag [%s] not recognized\n", argv[i]);
+			if (!isFlag(argv[i], "-h") && !isFlag(argv[i], "--help")) {
+				printf("Flag [%s] not recognized\n", argv[i]);
+			}
 			printf("Usage: [OPTIONS]\n");
-			printf("-s, --server\t\tmode server\n");
-			printf("-c, --client\t\tmode client\n");
+			printf("-s, --server\t\t\tmode server\n");
+			printf("-c, --client\t\t\tmode client\n");
 			printf("-t, --target <IPaddr>\t\tIP address of target if client (-c)\n");
 			printf("-p, --port <port>\t\tport\n");
 			exit(1);
