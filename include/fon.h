@@ -44,17 +44,17 @@ int h_socket ( int domaine, int mode );
 /*			    +===================+				*/
 /*==========================|	H_BIND		|===============================*/
 /*			    +===================+				*/
-void h_bind ( int num_soc, struct sockaddr_in *p_adr_socket );
+int h_bind ( int num_soc, struct sockaddr_in *p_adr_socket );
 
 /*			    +===================+				*/
 /*==========================| 	H_CONNECT	|===============================*/
 /*			    +===================+				*/
-void h_connect( int num_soc, struct sockaddr_in *p_adr_serv );
+int h_connect( int num_soc, struct sockaddr_in *p_adr_serv );
 
 /*			    +===================+				*/
 /*==========================|  H_LISTEN  	|===============================*/
 /*			    +===================+				*/
-void h_listen ( int num_soc, int nb_req_att );
+int h_listen ( int num_soc, int nb_req_att );
 
 /*			    +===================+				*/
 /*==========================| H_ACCEPT 		|===============================*/
@@ -87,12 +87,12 @@ int h_recvfrom( int num_soc, char *tampon, int nb_octets,
 /*			    +===================+				*/
 /*==========================| 	H_SHUTDOWN	|===============================*/
 /*			    +===================+				*/
-void h_shutdown ( int socket, int sens ) ;
+int h_shutdown ( int socket, int sens ) ;
 
 /*			    +===================+				*/
 /*==========================|	H_CLOSE		|===============================*/
 /*			    +===================+				*/
-void h_close ( int socket );
+int h_close ( int socket );
 
 /*			    +===================+				*/
 /*==========================|	ADR_SOCKET	|===============================*/

@@ -6,8 +6,15 @@
 #define SERVICE_DEFAUT "1111" /* port par défaut */
 #define SERVEUR_DEFAUT "127.0.0.1" /* serveur par défaut */
 
+#define CLIENT 1
+#define SERVEUR 0
+
+typedef int Mode;
+
 #define PROCESSUS_FILS 0
 
+
+#define EXIT_CHAR "exit"
 
 
 char bufferEmission[BUFFER_SIZE+1];
@@ -34,10 +41,12 @@ void setSocket (lSocket *S, int socket); /* add */
 void rmSocket (lSocket *S, int socket); /* remove */
 int getSocket (lSocket S, int noSocket); /* getter */
 
+void throwSocketReceptionError();
+void printUsage();
+
 int isFlag(char* string, char* flag);
-int cli (int argc, char *argv[], char **service, char **serveur);
+int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode);
 void setMessage (char message[]);
 void viderBuffer(void);
-void isSU (void);
 
 #endif

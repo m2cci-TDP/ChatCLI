@@ -31,44 +31,51 @@ void viderBuffer(void)
 	while (poubelle != '\n' && poubelle != EOF);
 }
 
-/*
-0 == server => server = NULL
-1 == client
-*/
-int cli (int argc, char *argv[], char **service, char **serveur) {
-	int mode;
-	/* faire erreur
-	if (serveur == NULL && isFlag(mode, "client")) {
-		fprintf(stderr, "L'attribut \"serveur\" doit être instancié.\n");
-		exit(1);
-	}
-	*/
+void printUsage(){
+	printf("Usage: chat [-c/-s] [OPTIONS]\n");
+	printf("-s, --server\t\tmode server\n");
+	printf("-c, --client\t\tmode client\n");
+	printf("-t, --target\t<IP>\tIP address of target if client (-c)\n");
+	printf("-p, --port\t<port>\tport\n");
+}
 
+int readStringParam(int argc, char *argv[], int index, char** output) {
+	if (index >= argc || strncmp(argv[index], "-", 1) == 0 ) {
+		return 0;
+	} else {
+		*output = argv[index];
+		return 1;
+	}
+}
+
+int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode) {
+	*mode = -1;
+	int readingSuccess = 1;
+	char* token;
 	for (int i = 1; i < argc; i++) {
-		if (isFlag(argv[i], "-t") || isFlag(argv[i], "--target")) {
-			*serveur = argv[++i];
-		} else if (isFlag(argv[i], "-p") || isFlag(argv[i], "--port")) {
-			*service = argv[++i];
-		} else if (isFlag(argv[i], "-c") || isFlag(argv[i], "--client")) {
-			mode = 1;
-		} else if (isFlag(argv[i], "-s") || isFlag(argv[i], "--server")) {
-			mode = 0;
+		token = argv[i];
+		if (isFlag(token, "-t") || isFlag(token, "--target")) {
+			readingSuccess = readStringParam(argc, argv, ++i, serveur);
+		} else if (isFlag(token, "-p") || isFlag(token, "--port")) {
+			readingSuccess = readStringParam(argc, argv, ++i, service);
+		} else if (isFlag(token, "-c") || isFlag(token, "--client")) {
+			*mode = CLIENT;
+		} else if (isFlag(token, "-s") || isFlag(token, "--server")) {
+			*mode = SERVEUR;
 		} else {
-			printf("Flag [%s] not recognized\n", argv[i]);
-			printf("Usage: [OPTIONS]\n");
-			printf("-s, --server\t\tmode server\n");
-			printf("-c, --client\t\tmode client\n");
-			printf("-t, --target <IPaddr>\t\tIP address of target if client (-c)\n");
-			printf("-p, --port <port>\t\tport\n");
+			printf("Flag [%s] not recognized\n", token);
 			exit(1);
 		}
+		if (readingSuccess != 1) {
+			printf("Syntax error, missing parameter after [%s] flag\n", token);
+		}
 	}
-	if (mode) {
-		printf("serveur: %s, ", *serveur);
-	}
-	printf("port: %s\n", *service);
 
-	return mode;
+	return readingSuccess;
+}
+
+void throwSocketReceptionError() {
+    fprintf(stderr, "Erreur lors de la réception de la socket.\n");
 }
 
 /* liste chainée */

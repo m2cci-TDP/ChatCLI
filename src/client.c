@@ -1,118 +1,53 @@
-/******************************************************************************/
-/*			Application: ...					*/
-/******************************************************************************/
-/*									      */
-/*			 programme  CLIENT				      */
-/*									      */
-/******************************************************************************/
-/*									      */
-/*		Auteurs : ... 					*/
-/*									      */
-/******************************************************************************/
-
-
 #include <stdio.h>
-#include <curses.h> 		/* Primitives de gestion d'ecran */
-#include <sys/signal.h>
-#include <sys/wait.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "fon.h"   		/* primitives de la boite a outils */
+#include <arpa/inet.h>
+#include <sys/signal.h>
 #include "util.h"
+#include "client.h"
+#include "fon.h"
 
-void client_appli (char *serveur, char *service);
 
-/*****************************************************************************/
-/*--------------- programme client -----------------------*/
 
-int main(int argc, char *argv[])
-{
-	char *serveur = SERVEUR_DEFAUT; /* serveur par defaut */
-	char *service = SERVICE_DEFAUT; /* numero de service par defaut (no de port) */
 
-	/* Permet de passer un nombre de parametre variable a l'executable */
-	cli(argc, argv, &service, &serveur);
+void clientTCP (char *serveur, char *service) {
+	printf("Running chat as client.\n");
+	printf("serveur: %s\n", serveur);
+	printf("port: %s\n", service);
 
-	/* serveur est le nom (ou l'adresse IP) auquel le client va acceder */
-	/* service le numero de port sur le serveur correspondant au  */
-	/* service desire par le client */
-
-	client_appli(serveur,service);
-	return 0;
-}
-
-void send_tcp (char *serveur, char *service)
-{
-	printf("MODE D'ENVOI : TCP\n");
 	int noSocket = h_socket(AF_INET, SOCK_STREAM);
 	struct sockaddr_in *socket_target;
 	adr_socket(SERVICE_DEFAUT, serveur, SOCK_STREAM, &socket_target);
-	sprintf(bufferEmission, "Salut mon loulou, je suis le message TCP %d :)", 1);
-	h_connect(noSocket, socket_target);
-	//	int octetsLus = h_reads(noSocket, bufferReception, BUFFER_SIZE);
-	h_writes(noSocket, bufferEmission, BUFFER_SIZE);
-
-	int nbOctRecus = h_reads(noSocket, bufferReception, BUFFER_SIZE);
-	if (nbOctRecus == -1) {
-		fprintf(stderr, "Erreur lors de la réception de la socket.\n");
-	} else {
-		#ifdef DEBUG
-		printf("Nombres d'octets reçus : %d\n", nbOctRecus);
-		#endif
-		printf("%s\n", bufferReception);
-	}
-
-	h_close(noSocket);
-}
-
-/* test double connection */
-void send_tcp_double (char *serveur, char *service)
-{
-	printf("MODE D'ENVOI : TCP\n");
-	struct sockaddr_in *socket_target;
-	adr_socket(SERVICE_DEFAUT, serveur, SOCK_STREAM, &socket_target);
-
-	int noSocket1 = h_socket(AF_INET, SOCK_STREAM);
-	int noSocket2 = h_socket(AF_INET, SOCK_STREAM);
-	h_connect(noSocket1, socket_target);
-	h_connect(noSocket2, socket_target);
-
-	sprintf(bufferEmission, "Salut mon loulou, je suis le message TCP %d :)", 1);
-	h_writes(noSocket1, bufferEmission, BUFFER_SIZE);
-
-	sprintf(bufferEmission, "Salut mon loulou, je suis le message TCP %d :)", 2);
-	h_writes(noSocket2, bufferEmission, BUFFER_SIZE);
-
-	h_close(noSocket1);
-	h_close(noSocket2);
-}
-
-
-void send_udp (char *serveur, char *service)
-{
-	printf("MODE D'ENVOI : UDP\n");
-	int noSocket = h_socket(AF_INET, SOCK_DGRAM);
-	struct sockaddr_in *socket_target;
-	adr_socket(SERVICE_DEFAUT, serveur, SOCK_DGRAM, &socket_target);
-	for(int i = 0; i < 10; i++) {
-		sprintf(bufferEmission, "Salut mon loulou, je suis le message UDP %d :)", i);
-		#ifdef DEBUG
-		printf("Envoi de %s\n", bufferEmission);
-		#endif
-		h_sendto(noSocket, bufferEmission, BUFFER_SIZE, socket_target);
+	if (h_connect(noSocket, socket_target) != -1) {
+		clientChat(noSocket);
 	}
 	h_close(noSocket);
 }
-/*****************************************************************************/
-/* procedure correspondant au traitement du client de votre application */
-void client_appli (char *serveur, char *service)
-{
-	if (isFlag(service, "tcp")) {
-		//send_tcp(serveur, service);
-		send_tcp_double(serveur, service);
-	} else {
-		send_udp(serveur, service);
-	}
+
+void clientChat (int socket) {
+  printf("Bienvenue dans le client de chat !\n");
+  printf("Veuillez entrez votre pseudo : ");
+  setMessage(bufferEmission);
+  h_writes(socket, bufferEmission, BUFFER_SIZE);
+  printf("\nVous avez choisi \"%s\" comme nom.\n", bufferEmission);
+  printf("Vous pouvez quitter l'application à tout moment en tapant [%s]\n\n", EXIT_CHAR);
+
+  while (!isFlag(bufferEmission, EXIT_CHAR)) {
+    printf("Votre message : ");
+    setMessage(bufferEmission);
+    printf("\033[1A"); // move cursor one ligne up
+    printf("\x0d"); // move the cursor in first column
+    printf("\033[K"); // erase the ligne
+    h_writes(socket, bufferEmission, BUFFER_SIZE);
+
+    /* reception */
+    int nbOctRecus = h_reads(socket, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
+    if (nbOctRecus == -1) {
+      fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+    } else {
+      /* écriture */
+      printf("%s\n", bufferReception);
+    }
+  }
+  printf("\nA bientôt !\nMerci d'avoir utiliser le chat !\n");
 }
-/*****************************************************************************/

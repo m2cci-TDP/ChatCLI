@@ -1,9 +1,7 @@
 .PHONY: test
 
 dirSRC = src
-OBJ = $(dirSRC)/fon.o $(dirSRC)/util.o
-objClient = $(dirSRC)/client.o
-objServeur = $(dirSRC)/serveur.o
+OBJ = $(dirSRC)/fon.o $(dirSRC)/util.o $(dirSRC)/client.o $(dirSRC)/serveur.o
 objChat = $(dirSRC)/chat.o
 OPTIONS	= -lcurses
 CFLAGS = -Iinclude
@@ -40,24 +38,19 @@ OPTIONS	+= -ltermcap  -lsocket -lnsl
 CFLAGS	+= -I..
 endif
 
-all: chat client serveur install
+all: chat install
 
 $(dirSRC)/%.o: %.c
 	$(CC) -DDEBUG $(CFLAGS) -c $<
-
-client: $(OBJ) $(objClient)
-	$(CC) $(LFLAGS) -o $@ $^ $(OPTIONS)
-
-serveur: $(OBJ) $(objServeur)
-	$(CC) $(LFLAGS) -o $@ $^ $(OPTIONS)
 
 chat: $(OBJ) $(objChat)
 	$(CC) $(LFLAGS) -o $@ $^ $(OPTIONS)
 
 install:
+	rm -rf $(dirBIN) $(dirLIB)
 	mkdir -p $(dirBIN) $(dirLIB)
-	mv $(OBJ) $(objClient) $(objServeur) $(objChat) $(dirLIB)/
-	mv client serveur chat $(dirBIN)/
+	mv $(OBJ) $(objChat) $(dirLIB)/
+	mv chat $(dirBIN)/
 
 $(appli):
 	$(CC) $(srcAppli) -o $@ -L/usr/ccs/lib -L/usr/ucblib $(OPTIONS)
@@ -74,5 +67,5 @@ clean:
 	rm -r $(dirLIB)
 
 mrproper:
-	rm -f $(dirBIN)/client $(dirBIN)/serveur $(dirBIN)/$(appli)
+	rm -f $(dirBIN)/$(appli)
 	rm -r $(dirBIN)
