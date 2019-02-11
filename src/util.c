@@ -62,6 +62,7 @@ int cli (int argc, char *argv[], char **service, char **serveur) {
 			printf("-c, --client\t\t\tmode client\n");
 			printf("-t, --target <IPaddr>\t\tIP address of target if client (-c)\n");
 			printf("-p, --port <port>\t\tport\n");
+			printf("-h, --help\t\t\tprint options\n");
 			exit(1);
 		}
 	}
