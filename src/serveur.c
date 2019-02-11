@@ -94,8 +94,28 @@ void serveur_tcp_chat (char *service) {
 	adr_socket(service, NULL, SOCK_STREAM, &p_adr_serveur); /* création de l'adresse de la socket */
 	h_bind(numSocket, p_adr_serveur); /* association de la socket et de son adresse */
 	h_listen(numSocket, NB_CON);
-	serverChat(numSocket);
+
+	/* création du processus serveur */
+	pid_t p = fork();
+	if (p < 0) {
+		fprintf(stderr, "Erreur lors de la création du processus serveur.\n");
+	} else if (p == 0) {
+		/* fils */
+		while (1) {
+			serverChat(numSocket);
+		}
+	}
+	/* père */
+	char stop;
+	printf("Appuyez sur \"q\" pour arrêter : ");
+	do {
+		/* boucle d'arrêt */
+		stop = getchar();
+		viderBuffer();
+	}	while (stop != 'q');
+	kill(p, SIGKILL); /* kill child process, need sudo */
 	h_close(numSocket); /* fermeture de la socket en attente */
+	printf("FIN SERVEUR TCP DE CHAT\n");
 }
 
 void serveur_tcp (char *service) {

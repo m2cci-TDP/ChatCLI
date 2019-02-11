@@ -32,5 +32,8 @@ int getSocket (lSocket S, int noSocket); /* getter */
 
 int isFlag(char* string, char* flag);
 void cli (int argc, char *argv[], char **service, char **serveur);
+void setMessage (char message[]);
+void viderBuffer(void);
+void isSU (void);
 
 #endif

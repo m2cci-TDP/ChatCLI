@@ -10,12 +10,12 @@
 
 void serverChat (int socket) {
   struct sockaddr_in p_adr_client;
-  int socketClient = 0;
+  int socketClient;
 
-  while ((socketClient = h_accept(socket, &p_adr_client)) != -1) {
-    pid_t p = fork();
-    if (p < 0) {
-      fprintf(stderr, "Erreur lors de la connection.\n");
+  if ((socketClient = h_accept(socket, &p_adr_client)) != -1) {
+    pid_t p;
+    if ((p = fork()) < 0) {
+      fprintf(stderr, "Erreur lors de la connexion.\n");
     } else if (p == 0) {
       /* code du fils */
       char name[BUFFER_SIZE];
@@ -47,6 +47,8 @@ void serverChat (int socket) {
 
     /* p = pid du fils code du père */
     h_close(socketClient); /* fermeture de la socket ouverte */
+  } else {
+    fprintf(stderr, "Nombre de connexions complet.\n");
   }
 }
 
@@ -76,24 +78,4 @@ void clientChat (int socket) {
     }
   }
   printf("\nA bientôt !\nMerci d'avoir utiliser le chat !\n");
-}
-
-
-void setMessage (char message[]) {
-  char c;
-  if ((c = getchar()) != '\n' && c != EOF) {
-    strcpy(message, &c);
-  }
-  while ((c = getchar()) != '\n' && c != EOF)
-  {
-    strcat(message, &c);
-  }
-  //viderBuffer();
-}
-
-void viderBuffer(void)
-{
-  char poubelle;
-  do poubelle = getchar();
-  while (poubelle != '\n' && poubelle != EOF);
 }

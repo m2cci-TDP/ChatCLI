@@ -3,7 +3,5 @@
 
 void serverChat (int socket);
 void clientChat (int socket);
-void setMessage (char message[]);
-void viderBuffer(void);
 
 #endif
