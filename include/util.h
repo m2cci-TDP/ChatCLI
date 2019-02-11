@@ -6,6 +6,10 @@
 #define SERVICE_DEFAUT "1111" /* port par défaut */
 #define SERVEUR_DEFAUT "127.0.0.1" /* serveur par défaut */
 
+#define PROCESSUS_FILS 0
+
+
+
 char bufferEmission[BUFFER_SIZE+1];
 char bufferReception[BUFFER_SIZE+1];
 

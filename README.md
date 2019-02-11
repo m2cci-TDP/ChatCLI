@@ -7,15 +7,18 @@ temporary repository for a network application
 
 ## Execution
 `cd bin` <br/>
-`./client [-t ipAdress] [-p port or protocol]` <br/>
-`./serveur [-p port or protocol]`
+`./chat -h` for help <br/>
+`./chat -c [-t ipAdress] [-p port]` for the client <br/>
+`./chat -s [-p port]` for the server
 
 ### Example
 `cd bin` <br/>
-`./client` or `./client -t 192.0.1.1 -p udp` <br/>
-`./serveur -p udp`
+`./chat -c` or `./chat -c -t 192.0.1.1 -p 1111` <br/>
+`./chat -s -p 1111`
 
+<!--
 ## Other
 Si probleme lors de l'execution avec ucblib rajouter: `setenv LD_LIBRARY /usr/ucblib/`
 
 Essaicurses et le make associe `make essaicurse` permettent de comprendre les primitives de gestions de curseur dans plusieurs fenetres. Permet de faire un joli TALK.
+-->
