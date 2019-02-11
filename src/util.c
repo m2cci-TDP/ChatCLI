@@ -33,7 +33,6 @@ void cli (int argc, char *argv[], char **service, char **serveur) {
 	char *mode = strstr(argv[0], "client");
 	if (mode == NULL) {
 		mode = strstr(argv[0], "serveur");
-		//isSU();
 	}
 
 	if (serveur == NULL && isFlag(mode, "client")) {
@@ -61,22 +60,6 @@ void cli (int argc, char *argv[], char **service, char **serveur) {
 		printf("serveur: %s, ", *serveur);
 	}
 	printf("port: %s\n", *service);
-}
-
-void isSU (void) {
-	pid_t p = fork();
-	if (p < 0) {
-		fprintf(stderr, "Erreur lors de la création du processus serveur.\n");
-	} else if (p < 0) {
-		/* père */
-		if (kill(p, SIGKILL) == -1) {
-			fprintf(stderr, "Relancez le serveur en super utilisateur.\n");
-			exit(1);
-		}
-	} else {
-		/*fils*/
-		while (1) {}
-	}
 }
 
 /* liste chainée */

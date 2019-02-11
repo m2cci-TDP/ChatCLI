@@ -107,13 +107,13 @@ void serveur_tcp_chat (char *service) {
 	}
 	/* père */
 	char stop;
-	printf("Appuyez sur \"q\" pour arrêter : ");
+	printf("Appuyez sur \"q\" pour arrêter.\n");
 	do {
 		/* boucle d'arrêt */
 		stop = getchar();
 		viderBuffer();
 	}	while (stop != 'q');
-	kill(p, SIGKILL); /* kill child process, need sudo */
+	kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
 	h_close(numSocket); /* fermeture de la socket en attente */
 	printf("FIN SERVEUR TCP DE CHAT\n");
 }
