@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include "util.h"
 
+
+
 int isFlag (char* string, char* flag) {
 	return strcmp(string, flag) == 0;
 }

@@ -34,7 +34,7 @@ void serverTCP (char *service) {
 	pid_t p = fork();
 	if (p < 0) {
 		fprintf(stderr, "Erreur lors de la création du processus serveur.\n");
-	} else if (p == 0) {
+	} else if (p == PROCESSUS_FILS) {
 		/* fils */
 		while (1) {
 			serverChat(numSocket);
@@ -47,7 +47,7 @@ void serverTCP (char *service) {
 		/* boucle d'arrêt */
 		stop = getchar();
 		viderBuffer();
-	}	while (stop != 'q');
+	}	while (stop != SERVEUR_EXIT_CHAR);
 	kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
 	h_close(numSocket); /* fermeture de la socket en attente */
 	printf("FIN SERVEUR TCP DE CHAT\n");
@@ -62,6 +62,10 @@ void clientTCP (char *serveur, char *service) {
 	h_close(noSocket);
 }
 
+void throwSocketReceptionError() {
+    fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+}
+
 void serverChat (int socket) {
   struct sockaddr_in p_adr_client;
   int socketClient;
@@ -70,31 +74,30 @@ void serverChat (int socket) {
     pid_t p;
     if ((p = fork()) < 0) {
       fprintf(stderr, "Erreur lors de la connexion.\n");
-    } else if (p == 0) {
-      /* code du fils */
-      char name[BUFFER_SIZE];
+    } else if (p == PROCESSUS_FILS) {
+      char clientName[BUFFER_SIZE];
       int nbOctRecus = h_reads(socketClient, bufferReception, BUFFER_SIZE); /* lecture du message pseudo */
       if (nbOctRecus == -1) {
-        fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+        throwSocketReceptionError();
       } else {
-        strcpy(name, bufferReception);
+        strcpy(clientName, bufferReception);
       }
 
       /* chat */
-      char str[INET_ADDRSTRLEN];
-      inet_ntop(AF_INET, &p_adr_client.sin_addr, str, INET_ADDRSTRLEN);
-      printf("%s (%s) entre dans le chat.\n", name, str);
-      while (!isFlag(bufferReception, ".")) {
+      char ipAddr[INET_ADDRSTRLEN];
+      inet_ntop(AF_INET, &p_adr_client.sin_addr, ipAddr, INET_ADDRSTRLEN);
+      printf("%s (%s) entre dans le chat.\n", clientName, ipAddr);
+      while (!isFlag(bufferReception, CLIENT_EXIT_CHAR)) {
         int nbOctRecus = h_reads(socketClient, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
         if (nbOctRecus == -1) {
-          fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+          throwSocketReceptionError();
         } else {
-          sprintf(bufferEmission, "%s : %s", name, bufferReception);
+          sprintf(bufferEmission, "%s : %s", clientName, bufferReception);
           h_writes(socketClient, bufferEmission, BUFFER_SIZE);
         }
       }
 
-      printf("%s quitte le chat.\n", name);
+      printf("%s quitte le chat.\n", clientName);
       h_close(socketClient); /* fermeture de la socket ouverte */
       exit(0);
     }
@@ -114,7 +117,7 @@ void clientChat (int socket) {
   printf("\nVous avez choisi \"%s\" comme nom.\n", bufferEmission);
   printf("Vous pouvez quitter l'application à tout moment en tapant le caractère \".\".\n\n");
 
-  while (!isFlag(bufferEmission, ".")) {
+  while (!isFlag(bufferEmission, CLIENT_EXIT_CHAR)) {
     printf("Votre message : ");
     setMessage(bufferEmission);
     printf("\033[1A"); // move cursor one ligne up
