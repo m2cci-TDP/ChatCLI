@@ -17,6 +17,7 @@ void clientTCP (char *serveur, char *service) {
 
 	int noSocket = h_socket(AF_INET, SOCK_STREAM);
 	struct sockaddr_in *socket_target;
+	
 	adr_socket(SERVICE_DEFAUT, serveur, SOCK_STREAM, &socket_target);
 	if (h_connect(noSocket, socket_target) != -1) {
 		clientChat(noSocket);

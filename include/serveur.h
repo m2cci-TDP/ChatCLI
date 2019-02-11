@@ -1,9 +1,8 @@
 #ifndef H_CLIENT
 #define H_CLIENT
 
-#define SERVEUR_EXIT_CHAR "q"
-
-void serverChat (int socket);
-void serverTCP (char *service);
-
+void serverChat (int);
+void serverTCP (char*);
+void createListeningSocket(pid_t*, int*, char*);
+void closeSocket(pid_t, int);
 #endif

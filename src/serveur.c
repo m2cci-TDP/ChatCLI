@@ -10,27 +10,14 @@
 
 
 
-
-void serverTCP (char *service) {
-	printf("Running chat as server on port: %s\n", service);
-	/* SOCK_STREAM = TCP */
-	int numSocket = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
-	struct sockaddr_in *p_adr_serveur;
-	adr_socket(SERVICE_DEFAUT, NULL, SOCK_STREAM, &p_adr_serveur); /* création de l'adresse de la socket */
-	h_bind(numSocket, p_adr_serveur); /* association de la socket et de son adresse */
-	h_listen(numSocket, NB_CON);
+void serverTCP (char *port) {
+	printf("Running chat as server on port: %s\n", port);
 
 	/* création du processus serveur */
-	pid_t p = fork();
-	if (p < 0) {
-		fprintf(stderr, "Erreur lors de la création du processus serveur.\n");
-	} else if (p == PROCESSUS_FILS) {
-		/* fils */
-		while (1) {
-			serverChat(numSocket);
-		}
-	}
-	/* père */
+	pid_t listeningSocket_pid;
+	int numSocket = 0;
+	createListeningSocket(&listeningSocket_pid, &numSocket, port);
+
 	char stop;
 	printf("Entrez [%s] pour arrêter Le processus.\n",EXIT_CHAR);
 	do {
@@ -38,11 +25,33 @@ void serverTCP (char *service) {
 		stop = getchar();
 		viderBuffer();
 	}	while (isFlag(&stop, EXIT_CHAR));
-	kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
-	h_close(numSocket); /* fermeture de la socket en attente */
-	printf("FIN SERVEUR TCP DE CHAT\n");
+	printf("Fermeture du chat\n");
+	// TODO avec tas: closeSocket(everySocket pid);
+	closeSocket(listeningSocket_pid, numSocket);
 }
 
+void closeSocket(pid_t p, int numSocket) {
+	kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
+	h_close(numSocket); /* fermeture de la socket en attente */
+}
+
+void createListeningSocket(pid_t* pid, int* numSocket, char* port) {
+	/* SOCK_STREAM = TCP */
+	*numSocket = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
+	struct sockaddr_in *p_adr_serveur;
+	adr_socket(port, NULL, SOCK_STREAM, &p_adr_serveur); /* création de l'adresse de la socket */
+	if (h_bind(*numSocket, p_adr_serveur) != -1) {
+		h_listen(*numSocket, NB_CON);
+	}
+	*pid = fork();
+	if (*pid < 0) {
+		fprintf(stderr, "Erreur lors de la création du processus serveur.\n");
+	} else if (*pid == PROCESSUS_FILS) {
+		while (1) {
+			serverChat(*numSocket);
+		}
+	}
+}
 
 void serverChat (int socket) {
   struct sockaddr_in p_adr_client;
