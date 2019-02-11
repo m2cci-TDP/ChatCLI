@@ -13,7 +13,7 @@ int main (int argc,char *argv[]) {
   	char *service = SERVICE_DEFAUT; /* numero de service par defaut (no de port) */
 
     if (cli(argc, argv, &service, &serveur)) {
-      clientTCP(service, serveur);
+      clientTCP(serveur, service);
     } else {
       serverTCP(service);
     }
@@ -23,7 +23,7 @@ int main (int argc,char *argv[]) {
 
 void serverTCP (char *service) {
 	printf("SERVEUR TCP DE CHAT\n");
-	/* SOCK_STREAM = UDP */
+	/* SOCK_STREAM = TCP */
 	int numSocket = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
 	struct sockaddr_in *p_adr_serveur;
 	adr_socket(SERVICE_DEFAUT, NULL, SOCK_STREAM, &p_adr_serveur); /* création de l'adresse de la socket */
