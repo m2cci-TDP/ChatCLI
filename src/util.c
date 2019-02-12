@@ -30,12 +30,19 @@ void viderBuffer(void)
 	while (poubelle != '\n' && poubelle != EOF);
 }
 
-void printUsage(){
+void printUsage (){
 	printf("Usage: chat [-c/-s] [OPTIONS]\n");
 	printf("-s, --server\t\tmode server\n");
 	printf("-c, --client\t\tmode client\n");
-	printf("-t, --target\t<IP>\tIP address of target if client (-c)\n");
-	printf("-p, --port\t<port>\tport\n");
+	printf("OPTIONS:\n");
+	printf("-t, --target\t<IP>\tIP address of target if client (default: %s)\n", SERVEUR_DEFAUT);
+	printf("-p, --port\t<port>\tport (default: %s)\n", SERVICE_DEFAUT);
+	printf("-h, --help\t\tprint usage\n");
+}
+
+void exitWithUsage (void) {
+	printUsage();
+	exit(1);
 }
 
 int readStringParam(int argc, char *argv[], int index, char** output) {
@@ -61,9 +68,11 @@ int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode) {
 			*mode = CLIENT;
 		} else if (isFlag(token, "-s") || isFlag(token, "--server")) {
 			*mode = SERVEUR;
+		} else if (isFlag(token, "-h") || isFlag(token, "--help")) {
+			exitWithUsage();
 		} else {
 			printf("Flag [%s] not recognized\n", token);
-			exit(1);
+			exitWithUsage();
 		}
 		if (readingSuccess != 1) {
 			printf("Syntax error, missing parameter after [%s] flag\n", token);

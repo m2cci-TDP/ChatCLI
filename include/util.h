@@ -43,6 +43,7 @@ int getSocket (lSocket S, int noSocket); /* getter */
 
 void throwSocketReceptionError();
 void printUsage();
+void exitWithUsage (void);
 
 int isFlag(char* string, char* flag);
 int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode);
