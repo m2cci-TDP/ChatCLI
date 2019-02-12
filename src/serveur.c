@@ -17,7 +17,7 @@ void serverTCP (char *port) {
 	if (pid > 0) {
 		// ici pid = PID{process_fils
 		runMainThread();
-		closeChat(listeningSocket, pid);
+		closeChat(listeningSocket, 0);
 	} else if (pid == PROCESSUS_FILS) { // new thread: listeningSocket, pid = 0
 		runListeningSocketThread(listeningSocket);
 	} else {
@@ -28,7 +28,9 @@ void serverTCP (char *port) {
 void closeChat (int listeningSocket, pid_t listeningSocketPid) {
 	//TODO: sendMessage ("le serveur ferme ses portes");
 	printf("[closeChat] Fermeture du chat\n");
-	closeSocket(listeningSocketPid, listeningSocket);
+	h_close(listeningSocket);
+	kill(0, SIGTERM);
+	// closeSocket(listeningSocketPid, listeningSocket);
 }
 
 void registerSocket (pid_t pid, int socket) {
@@ -42,12 +44,11 @@ void closeSocket(pid_t p, int numSocket) {
 }
 
 void runMainThread () {
-	char stop;
+	char stop[5];
 	printf("[runMainThread] Entrez [%s] pour arrêter Le processus.\n", EXIT_CHAR);
 	do {
-		stop = getchar();
-		viderBuffer();
-	}	while (isFlag(&stop, EXIT_CHAR));
+		setMessage(stop);
+	}	while (!isFlag(stop, EXIT_CHAR));
 }
 
 int createListeningSocket(char* port) {
@@ -86,7 +87,8 @@ void handleNewConnection (int dedicatedSocket, struct sockaddr_in clientSocket) 
 		char clientName[BUFFER_SIZE] = "";
 		registerClient(dedicatedSocket, clientSocket, clientName);
 		handleClient(dedicatedSocket, clientSocket, clientName);
-		closeSocket(getpid(), dedicatedSocket);	// TODO: Faux: pid = 0 quand on est dans le fils
+		h_close(dedicatedSocket);
+		//closeSocket(getpid(), dedicatedSocket);	// TODO: Faux: pid = 0 quand on est dans le fils
 	} else {
 		fprintf(stderr, "[handleNewConnection] Erreur lors de la création du processus du client.\n");
 	}
@@ -139,5 +141,4 @@ int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* cli
 
 void processClientLogout (char* clientName) {
 	printf("[processClientLogout] %s quitte le chat.\n", clientName);
-	viderBuffer(); /* fix bug if client says "exit" => server "exit" */
 }

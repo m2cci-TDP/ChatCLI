@@ -16,7 +16,6 @@ typedef int Mode;
 
 #define EXIT_CHAR "exit"
 
-
 char bufferEmission[BUFFER_SIZE+1];
 char bufferReception[BUFFER_SIZE+1];
 

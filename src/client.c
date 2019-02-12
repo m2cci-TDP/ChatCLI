@@ -36,7 +36,9 @@ void clientChat (int socket) {
 		h_writes(socket, bufferEmission, BUFFER_SIZE);
 
 		/* reception */
-		readPrint(socket);
+		if (!isFlag(bufferEmission, EXIT_CHAR)) {
+			readPrint(socket);
+		}
 	} while (!isFlag(bufferEmission, EXIT_CHAR));
 	readPrint(socket);
 }
