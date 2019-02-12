@@ -110,12 +110,15 @@ void makeLSocket (lSocket *S) {
 void rmLSocket (lSocket *S) {
 
 }
-void setSocket (lSocket *S, int socket) {
-	pCellSock newCell = (pCellSock)malloc(sizeof(cellSock));
-	if (newCell == NULL) {
+void exitMemoryFull (pCellSock p) {
+	if (p == NULL) {
 		fprintf(stderr, "Mémoire pleine.\n");
 		exit(1);
 	}
+}
+void setSocket (lSocket *S, int socket) {
+	pCellSock newCell = (pCellSock)malloc(sizeof(cellSock));
+	exitMemoryFull(newCell);
 	newCell->socket = socket;
 	newCell->pNext = NULL;
 	if (S->head == NULL) {
@@ -128,9 +131,43 @@ void setSocket (lSocket *S, int socket) {
 	}
 	(S->length)++;
 }
+void getCellSock (int socket, int* noSocket, pCellSock* ac, pCellSock* ap) {
+	if (*ac != NULL && (*ac)->socket != socket && *noSocket != 1) {
+		*ap = *ac;
+		*ac = (*ac)->pNext;
+		(*noSocket)--;
+		getCellSock(socket, noSocket, ac, ap);
+	}
+}
+void exitSocketNotFind (pCellSock ac, int socket, int isNo) {
+	char type[14] = "socket";
+	if (isNo) {
+		sprintf(type, "%s numéro", type);
+	}
+	if (ac == NULL) {
+		printf("%s %d non trouvée\n", type, socket);
+		exit(1);
+	}
+}
 void rmSocket (lSocket *S, int socket) {
+	pCellSock ficCell = (pCellSock)malloc(sizeof(cellSock));
+	exitMemoryFull(ficCell);
+	ficCell->pNext = S->head;
 
+	pCellSock ac = S->head, ap = ficCell;
+	int noSocket = -1;
+	getCellSock(socket, &noSocket, &ac, &ap);
+	exitSocketNotFind(ac, socket, 0);
+	ap->pNext = ac->pNext;
+	free(ac);
+	S->head = ficCell->pNext;
+	free(ficCell);
+	(S->length)--;
 }
 int getSocket (lSocket S, int noSocket) {
-
+	pCellSock ac = S.head, ap = ac;
+	int noSocketTMP = noSocket;
+	getCellSock(-1, &noSocket, &ac, &ap);
+	exitSocketNotFind(ac, noSocketTMP, 1);
+	return ac->socket;
 }
