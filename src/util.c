@@ -100,16 +100,33 @@ void sendMessage (int socket, char message[]) {
 
 /* liste chainée */
 int getLength (lSocket S) {
-
+	return S.length;
 }
 void makeLSocket (lSocket *S) {
-
+	S->length = 0;
+	S->head = NULL;
+	S->tail = NULL;
 }
 void rmLSocket (lSocket *S) {
 
 }
 void setSocket (lSocket *S, int socket) {
-
+	pCellSock newCell = (pCellSock)malloc(sizeof(cellSock));
+	if (newCell == NULL) {
+		fprintf(stderr, "Mémoire pleine.\n");
+		exit(1);
+	}
+	newCell->socket = socket;
+	newCell->pNext = NULL;
+	if (S->head == NULL) {
+		/* première socket */
+		S->head = newCell;
+		S->tail = newCell;
+	} else {
+		(S->tail)->pNext = newCell;
+		S->tail = newCell;
+	}
+	(S->length)++;
 }
 void rmSocket (lSocket *S, int socket) {
 

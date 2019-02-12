@@ -23,8 +23,7 @@ char bufferReception[BUFFER_SIZE+1];
 /* cellule de socket */
 typedef struct cellSock {
   int socket;
-  struct lSocket* pNext;
-  struct lSocket* pPast;
+  struct cellSock* pNext;
 } cellSock;
 typedef cellSock *pCellSock;
 /* liste chainée de cellule de socket */
