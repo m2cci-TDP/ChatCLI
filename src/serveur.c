@@ -31,7 +31,8 @@ void serverTCP (char *port) {
 }
 
 void closeSocket(pid_t p, int numSocket) {
-	kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
+	//kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
+	kill(0, SIGTERM);
 	h_close(numSocket); /* fermeture de la socket en attente */
 }
 

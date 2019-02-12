@@ -75,7 +75,7 @@ int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode) {
 }
 
 void throwSocketReceptionError() {
-    fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+	fprintf(stderr, "Erreur lors de la réception de la socket.\n");
 }
 
 /* liste chainée */
