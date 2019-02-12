@@ -49,4 +49,7 @@ int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode);
 void setMessage (char message[]);
 void viderBuffer(void);
 
+void sendMessage (int socket, char message[]);
+void readPrint (int socket);
+
 #endif

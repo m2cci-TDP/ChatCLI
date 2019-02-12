@@ -5,8 +5,7 @@
 #include <sys/signal.h>
 #include <sys/types.h>
 #include "util.h"
-
-
+#include "fon.h"
 
 int isFlag (char* string, char* flag) {
 	return strcmp(string, flag) == 0;
@@ -76,6 +75,18 @@ int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode) {
 
 void throwSocketReceptionError() {
 	fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+}
+
+void readPrint (int socket) {
+	if (h_reads(socket, bufferReception, BUFFER_SIZE) == -1) { /* lecture du message avant espaces */
+		fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+	} else {
+		printf("%s", bufferReception); /* écriture */
+	}
+}
+void sendMessage (int socket, char message[]) {
+	sprintf(bufferEmission, "%s", message);
+	h_writes(socket, bufferEmission, BUFFER_SIZE);
 }
 
 /* liste chainée */

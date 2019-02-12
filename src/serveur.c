@@ -63,6 +63,8 @@ void serverChat (int socket) {
     if ((p = fork()) < 0) {
       fprintf(stderr, "Erreur lors de la connexion.\n");
     } else if (p == PROCESSUS_FILS) {
+			sendMessage(socketClient, "Bienvenue dans le client de chat !\nVeuillez entrez votre pseudo : ");
+
       char clientName[BUFFER_SIZE];
       int nbOctRecus = h_reads(socketClient, bufferReception, BUFFER_SIZE); /* lecture du message pseudo */
       if (nbOctRecus == -1) {
@@ -76,16 +78,18 @@ void serverChat (int socket) {
       inet_ntop(AF_INET, &p_adr_client.sin_addr, ipAddr, INET_ADDRSTRLEN);
       printf("%s (%s) entre dans le chat.\n", clientName, ipAddr);
       while (!isFlag(bufferReception, EXIT_CHAR)) {
+				sendMessage(socketClient, "Votre message : ");
         int nbOctRecus = h_reads(socketClient, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
         if (nbOctRecus == -1) {
           throwSocketReceptionError();
         } else {
-          sprintf(bufferEmission, "%s : %s", clientName, bufferReception);
+          sprintf(bufferEmission, "%s : %s\n", clientName, bufferReception);
           h_writes(socketClient, bufferEmission, BUFFER_SIZE);
         }
       }
 
       printf("%s quitte le chat.\n", clientName);
+			sendMessage(socketClient, "\nA bientôt !\nMerci d'avoir utiliser le chat !\n");
       h_close(socketClient); /* fermeture de la socket ouverte */
       exit(0);
     }

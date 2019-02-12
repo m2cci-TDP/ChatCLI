@@ -5,4 +5,5 @@ void serverChat (int);
 void serverTCP (char*);
 void createListeningSocket(pid_t*, int*, char*);
 void closeSocket(pid_t, int);
+
 #endif
