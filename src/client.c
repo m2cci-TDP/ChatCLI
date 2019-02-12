@@ -7,9 +7,6 @@
 #include "client.h"
 #include "fon.h"
 
-
-
-
 void clientTCP (char *serveur, char *service) {
 	printf("Running chat as client on serveur: %s and port: %s\n", serveur, service);
 
@@ -30,7 +27,7 @@ void clientChat (int socket) {
 	printf("\nVous avez choisi \"%s\" comme nom.\n", bufferEmission);
 	printf("Vous pouvez quitter l'application à tout moment en tapant [%s]\n\n", EXIT_CHAR);
 
-	while (!isFlag(bufferEmission, EXIT_CHAR)) {
+	do {
 		readPrint(socket);
 		setMessage(bufferEmission);
 		printf("\033[1A"); // move cursor one ligne up
@@ -40,6 +37,6 @@ void clientChat (int socket) {
 
 		/* reception */
 		readPrint(socket);
-	}
+	} while (!isFlag(bufferEmission, EXIT_CHAR));
 	readPrint(socket);
 }

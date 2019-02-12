@@ -38,12 +38,12 @@ void registerSocket (pid_t pid, int socket) {
 void closeSocket(pid_t p, int numSocket) {
 	h_close(numSocket); /* fermeture de la socket en attente */
 	// kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
-  kill(0, SIGTERM);
+	kill(0, SIGTERM);
 }
 
 void runMainThread () {
 	char stop;
-	printf("[runMainThread] Entrez [%s] pour arrêter Le processus.\n",EXIT_CHAR);
+	printf("[runMainThread] Entrez [%s] pour arrêter Le processus.\n", EXIT_CHAR);
 	do {
 		stop = getchar();
 		viderBuffer();
@@ -93,11 +93,11 @@ void handleNewConnection (int dedicatedSocket, struct sockaddr_in clientSocket) 
 }
 
 void registerClient (int dedicatedSocket, struct sockaddr_in clientSocAddr, char* clientName) {
-		char clientIp[INET_ADDRSTRLEN];
-		parseClientName(dedicatedSocket, clientName);
-		parseClientIp(clientSocAddr, clientIp);
-		// TODO sendToAll();
-		printf("[registerClient] %s (%s) entre dans le chat.\n", clientName, clientIp);
+	char clientIp[INET_ADDRSTRLEN];
+	parseClientName(dedicatedSocket, clientName);
+	parseClientIp(clientSocAddr, clientIp);
+	// TODO sendToAll();
+	printf("[registerClient] %s (%s) entre dans le chat.\n", clientName, clientIp);
 }
 
 void parseClientName (int socketClient, char* clientName) {
@@ -121,7 +121,7 @@ void handleClient (int dedicatedSocket, struct sockaddr_in clientIp, char* clien
 		h_writes(dedicatedSocket, bufferEmission, BUFFER_SIZE);
 	}
 	processClientLogout(clientName);
-  sendMessage(dedicatedSocket, "\nA bientôt !\nMerci d'avoir utiliser le chat !\n");
+	sendMessage(dedicatedSocket, "\nA bientôt !\nMerci d'avoir utiliser le chat !\n");
 }
 
 int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* clientName) {
@@ -139,4 +139,5 @@ int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* cli
 
 void processClientLogout (char* clientName) {
 	printf("[processClientLogout] %s quitte le chat.\n", clientName);
+	viderBuffer(); /* fix bug if client says "exit" => server "exit" */
 }
