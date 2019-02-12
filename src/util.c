@@ -105,10 +105,12 @@ int getLength (lSocket S) {
 void makeLSocket (lSocket *S) {
 	S->length = 0;
 	S->head = NULL;
-	S->tail = NULL;
 }
 void rmLSocket (lSocket *S) {
-
+	if (S->head != NULL) {
+		rmSocket(S, (S->head)->socket);
+		rmLSocket(S);
+	}
 }
 void exitMemoryFull (pCellSock p) {
 	if (p == NULL) {
@@ -124,10 +126,10 @@ void setSocket (lSocket *S, int socket) {
 	if (S->head == NULL) {
 		/* première socket */
 		S->head = newCell;
-		S->tail = newCell;
 	} else {
-		(S->tail)->pNext = newCell;
-		S->tail = newCell;
+		/* ajout en tête */
+		newCell->pNext = S->head;
+		S->head = newCell;
 	}
 	(S->length)++;
 }

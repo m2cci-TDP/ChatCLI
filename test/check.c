@@ -47,7 +47,7 @@ START_TEST (test_socket)
 {
   int numSocket3 = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
   setSocket(&S, numSocket3);
-  ck_assert_int_eq(getSocket(S, 3), numSocket3);
+  ck_assert_int_eq(getSocket(S, 1), numSocket3);
 }
 END_TEST
 

@@ -30,7 +30,6 @@ typedef cellSock *pCellSock;
 typedef struct {
   int length;
   pCellSock head;
-  pCellSock tail;
 } lSocket;
 /* methods */
 int getLength (lSocket S); /* return length */
