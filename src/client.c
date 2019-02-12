@@ -28,17 +28,23 @@ void clientChat (int socket) {
 	printf("Vous pouvez quitter l'application à tout moment en tapant [%s]\n\n", EXIT_CHAR);
 
 	do {
+		testServerConnection(socket);
 		readPrint(socket);
 		setMessage(bufferEmission);
 		printf("\033[1A"); // move cursor one ligne up
 		printf("\x0d"); // move the cursor in first column
 		printf("\033[K"); // erase the ligne
 		h_writes(socket, bufferEmission, BUFFER_SIZE);
-
-		/* reception */
-		if (!isFlag(bufferEmission, EXIT_CHAR)) {
-			readPrint(socket);
-		}
 	} while (!isFlag(bufferEmission, EXIT_CHAR));
 	readPrint(socket);
+}
+
+void testServerConnection (int socket) {
+	int error = 0;
+	socklen_t len = sizeof (error);
+	getsockopt (socket, SOL_SOCKET, SO_ERROR, &error, &len);
+	if (error != 0) {
+		fprintf(stderr, "Aucune connexion avec le serveur\n");
+		exit(1);
+	}
 }
