@@ -8,8 +8,6 @@
 #include "serveur.h"
 #include "fon.h"
 
-
-
 void serverTCP (char *port) {
 	printf("Running chat as server on port: %s\n", port);
 	/* création du processus serveur */
@@ -42,7 +40,8 @@ void registerSocket (pid_t pid, int socket) {
 }
 void closeSocket(pid_t p, int numSocket) {
 	h_close(numSocket); /* fermeture de la socket en attente */
-	kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
+	// kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
+  kill(0, SIGTERM);
 }
 
 void runMainThread () {
@@ -121,13 +120,16 @@ void parseClientIp (struct sockaddr_in p_adr_client, char *ipAddr) {
 void handleClient (int dedicatedSocket, struct sockaddr_in clientIp, char* clientName) {
 	while (readClientInput(dedicatedSocket, clientIp, clientName) == 1) {
 		// TODO: sendToAll()
+		sendMessage(dedicatedSocket, "Votre message : ");
 		h_writes(dedicatedSocket, bufferEmission, BUFFER_SIZE);
 		printf("%s says \"%s\"\n", clientName, bufferEmission);
 	}
 	processClientLogout(clientName);
+  sendMessage(dedicatedSocket, "\nA bientôt !\nMerci d'avoir utiliser le chat !\n");
 }
 
 int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* clientName) {
+  sendMessage(dedicatedSocket, "Bienvenue dans le client de chat !\nVeuillez entrez votre pseudo : ");
 	int nbOctRecus = h_reads(dedicatedSocket, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
 	if (nbOctRecus == -1) {
 		throwSocketReceptionError();
@@ -141,49 +143,3 @@ int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* cli
 void processClientLogout (char* clientName) {
 	printf("%s quitte le chat.\n", clientName);
 }
-
-/*
-void serverChat (int socket) {
-  struct sockaddr_in p_adr_client;
-  int socketClient;
-
-  if ((socketClient = h_accept(socket, &p_adr_client)) != -1) {
-    pid_t p;
-    if ((p = fork()) < 0) {
-      fprintf(stderr, "Erreur lors de la connexion.\n");
-    } else if (p == PROCESSUS_FILS) {
-    	char clientName[BUFFER_SIZE];
-      int nbOctRecus = h_reads(socketClient, bufferReception, BUFFER_SIZE); // lecture du message pseudo
-      if (nbOctRecus == -1) {
-        throwSocketReceptionError();
-      } else {
-        strcpy(clientName, bufferReception);
-      }
-
-      // chat
-
-      char ipAddr[INET_ADDRSTRLEN];
-      inet_ntop(AF_INET, &p_adr_client.sin_addr, ipAddr, INET_ADDRSTRLEN);
-      printf("%s (%s) entre dans le chat.\n", clientName, ipAddr);
-      while (!isFlag(bufferReception, EXIT_CHAR)) {
-        int nbOctRecus = h_reads(socketClient, bufferReception, BUFFER_SIZE); // lecture du message avant espaces
-        if (nbOctRecus == -1) {
-          throwSocketReceptionError();
-        } else {
-          sprintf(bufferEmission, "%s : %s", clientName, bufferReception);
-          h_writes(socketClient, bufferEmission, BUFFER_SIZE);
-        }
-      }
-
-      printf("%s quitte le chat.\n", clientName);
-      h_close(socketClient); // fermeture de la socket ouverte
-      exit(0);
-    }
-
-    // p = pid du fils code du père
-    h_close(socketClient); // fermeture de la socket ouverte
-  } else {
-    fprintf(stderr, "Nombre de connexions complet.\n");
-  }
-}
-*/

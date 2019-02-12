@@ -5,8 +5,8 @@
 void registerSocket (pid_t pid, int socket);
 void closeSocket(pid_t p, int numSocket);
 
-
 void serverTCP (char*);
+
 void runMainThread ();
 void closeChat ();
 int createListeningSocket(char* port);
