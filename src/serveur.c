@@ -89,7 +89,7 @@ void handleNewConnection (int dedicatedSocket, struct sockaddr_in clientSocket) 
 		handleClient(dedicatedSocket, clientSocket, clientName);
 		closeSocket(getpid(), dedicatedSocket);	// TODO: Faux: pid = 0 quand on est dans le fils
 	} else {
-		fprintf(stderr, "[handleNewConnection] Erreur lors de la création du processus dedie client.\n");
+		fprintf(stderr, "[handleNewConnection] Erreur lors de la création du processus du client.\n");
 	}
 }
 
@@ -102,6 +102,7 @@ void registerClient (int dedicatedSocket, struct sockaddr_in clientSocAddr, char
 }
 
 void parseClientName (int socketClient, char* clientName) {
+	sendMessage(socketClient, "Bienvenue dans le client de chat !\nVeuillez entrez votre pseudo : ");
 	int nbOctRecus = h_reads(socketClient, bufferReception, BUFFER_SIZE); /* lecture du message pseudo */
 	if (nbOctRecus == -1) {
 		throwSocketReceptionError();
@@ -118,7 +119,6 @@ void parseClientIp (struct sockaddr_in p_adr_client, char *ipAddr) {
 void handleClient (int dedicatedSocket, struct sockaddr_in clientIp, char* clientName) {
 	while (readClientInput(dedicatedSocket, clientIp, clientName)) {
 		// TODO: sendToAll()
-		sendMessage(dedicatedSocket, "Votre message : ");
 		h_writes(dedicatedSocket, bufferEmission, BUFFER_SIZE);
 	}
 	processClientLogout(clientName);
@@ -126,13 +126,13 @@ void handleClient (int dedicatedSocket, struct sockaddr_in clientIp, char* clien
 }
 
 int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* clientName) {
-  sendMessage(dedicatedSocket, "Bienvenue dans le client de chat !\nVeuillez entrez votre pseudo : ");
+	sendMessage(dedicatedSocket, "Votre message : ");
 	int nbOctRecus = h_reads(dedicatedSocket, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
 	if (nbOctRecus == -1) {
 		throwSocketReceptionError();
 		return -1;
 	} else {
-		sprintf(bufferEmission, "%s : %s", clientName, bufferReception);
+		sprintf(bufferEmission, "%s : %s\n", clientName, bufferReception);
 		printf("[readClientInput] %s says \"%s\"\n", clientName, bufferReception);
 	}
 	return isFlag(bufferReception, EXIT_CHAR) != 1;
