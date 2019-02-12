@@ -17,8 +17,7 @@ void serverTCP (char *port) {
 	if (pid > 0) {
 		// ici pid = PID{process_fils
 		runMainThread();
-		closeSocket(pid, listeningSocket);
-		closeChat();
+		closeChat(listeningSocket, pid);
 	} else if (pid == PROCESSUS_FILS) { // new thread: listeningSocket, pid = 0
 		runListeningSocketThread(listeningSocket);
 	} else {
@@ -26,16 +25,16 @@ void serverTCP (char *port) {
 	}
 }
 
-void closeChat () {
+void closeChat (int listeningSocket, pid_t listeningSocketPid) {
+	//TODO: sendMessage ("le serveur ferme ses portes");
 	printf("[closeChat] Fermeture du chat\n");
-		// TODO avec tas: closeSocket(everySocket pid);
-		// mieux: utiliser un trap pour tuer les subprocesses
-		// encore mieux: kill 0
+	closeSocket(listeningSocketPid, listeningSocket);
 }
 
 void registerSocket (pid_t pid, int socket) {
 	//TODO: list.add(pid, socket);
 }
+
 void closeSocket(pid_t p, int numSocket) {
 	h_close(numSocket); /* fermeture de la socket en attente */
 	// kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
