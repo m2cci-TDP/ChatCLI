@@ -19,7 +19,7 @@
 
 #include "fon.h"   		/* primitives de la boite a outils */
 
-#define SERVICE_DEFAUT "56432"
+#define SERVICE_DEFAUT "65432"
 #define SERVEUR_DEFAUT "127.0.0.1"
 
 void client_appli (char *serveur, char *service);
@@ -73,25 +73,31 @@ void client_appli (char *serveur,char *service)
 	
 	int num_soc;
 	int stop=1;
-	int envoi;
+	int envoi=1;
 	/*printf("choisissez le mode SOCK_STREAM (tcp) ou SOCK_DGRAM (udp)");
 	scanf(%d,typesock);*/
-
+	printf("test0\n");
 	num_soc = h_socket(AF_INET,SOCK_STREAM);
-	
+	printf("test1\n");
 	adr_socket (service, serveur, SOCK_STREAM,&socket_target);
-		
+	printf("test2\n");	
 	h_connect(num_soc,socket_target);
 	
+	printf("connexion reussie\n");
 	
 	while (stop !=0 || envoi!=0){
-		
-		stop=h_reads(num_soc,tamponLecture,BUFFERSIZE);
-	
-		
+		printf("J'écris au serveur\n");
+		scanf("%s",tamponEcriture);
 		envoi=write(num_soc,tamponEcriture,BUFFERSIZE);
+		printf("Je lis ce que le serveur me dit\n");
+		printf("tamponLecture : %s\n",tamponLecture);
+		printf("num_soc : %d\n",num_soc);
+		stop=h_reads(num_soc,tamponLecture,BUFFERSIZE);
+		printf("%s\n",tamponLecture);
+		if()
+		
 	}
-
+	printf("je suis sorti de la boucle\n");
 	h_close(num_soc);
 
 	/* a completer .....  */

@@ -60,8 +60,21 @@ int main(int argc,char *argv[])
 /* Procedure correspondant au traitemnt du serveur de votre application */
 void serveur_appli(char *service)
 {
-
-	/* A completer ... */
+	char tamponLecture [BUFFERSIZE+1];
+	char tamponEcriture [BUFFERSIZE+1];
+	int nb_octets;
+	struct sockaddr_in *socket_target;
+	
+	int num_soc;
+	int stop=1;
+	int envoi=1;
+	/*printf("choisissez le mode SOCK_STREAM (tcp) ou SOCK_DGRAM (udp)");
+	scanf(%d,typesock);*/
+	printf("test0\n");
+	num_soc = h_socket(AF_INET,SOCK_STREAM);
+	printf("test1\n");
+	adr_socket (service, serveur, SOCK_STREAM,&socket_target);
+	printf("test2\n");	
 
 }
 
