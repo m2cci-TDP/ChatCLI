@@ -5,8 +5,7 @@
 #include <sys/signal.h>
 #include <sys/types.h>
 #include "util.h"
-
-
+#include "fon.h"
 
 int isFlag (char* string, char* flag) {
 	return strcmp(string, flag) == 0;
@@ -31,12 +30,19 @@ void viderBuffer(void)
 	while (poubelle != '\n' && poubelle != EOF);
 }
 
-void printUsage(){
+void printUsage (){
 	printf("Usage: chat [-c/-s] [OPTIONS]\n");
 	printf("-s, --server\t\tmode server\n");
 	printf("-c, --client\t\tmode client\n");
-	printf("-t, --target\t<IP>\tIP address of target if client (-c)\n");
-	printf("-p, --port\t<port>\tport\n");
+	printf("OPTIONS:\n");
+	printf("-t, --target\t<IP>\tIP address of target if client (default: %s)\n", SERVEUR_DEFAUT);
+	printf("-p, --port\t<port>\tport (default: %s)\n", SERVICE_DEFAUT);
+	printf("-h, --help\t\tprint usage\n");
+}
+
+void exitWithUsage (void) {
+	printUsage();
+	exit(1);
 }
 
 int readStringParam(int argc, char *argv[], int index, char** output) {
@@ -62,9 +68,11 @@ int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode) {
 			*mode = CLIENT;
 		} else if (isFlag(token, "-s") || isFlag(token, "--server")) {
 			*mode = SERVEUR;
+		} else if (isFlag(token, "-h") || isFlag(token, "--help")) {
+			exitWithUsage();
 		} else {
 			printf("Flag [%s] not recognized\n", token);
-			exit(1);
+			exitWithUsage();
 		}
 		if (readingSuccess != 1) {
 			printf("Syntax error, missing parameter after [%s] flag\n", token);
@@ -75,25 +83,91 @@ int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode) {
 }
 
 void throwSocketReceptionError() {
-    fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+	fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+}
+
+void readPrint (int socket) {
+	if (h_reads(socket, bufferReception, BUFFER_SIZE) == -1) { /* lecture du message avant espaces */
+		fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+	} else {
+		printf("%s", bufferReception); /* écriture */
+	}
+}
+void sendMessage (int socket, char message[]) {
+	sprintf(bufferEmission, "%s", message);
+	h_writes(socket, bufferEmission, BUFFER_SIZE);
 }
 
 /* liste chainée */
 int getLength (lSocket S) {
-
+	return S.length;
 }
 void makeLSocket (lSocket *S) {
-
+	S->length = 0;
+	S->head = NULL;
+	S->tail = NULL;
 }
 void rmLSocket (lSocket *S) {
 
 }
+void exitMemoryFull (pCellSock p) {
+	if (p == NULL) {
+		fprintf(stderr, "Mémoire pleine.\n");
+		exit(1);
+	}
+}
 void setSocket (lSocket *S, int socket) {
-
+	pCellSock newCell = (pCellSock)malloc(sizeof(cellSock));
+	exitMemoryFull(newCell);
+	newCell->socket = socket;
+	newCell->pNext = NULL;
+	if (S->head == NULL) {
+		/* première socket */
+		S->head = newCell;
+		S->tail = newCell;
+	} else {
+		(S->tail)->pNext = newCell;
+		S->tail = newCell;
+	}
+	(S->length)++;
+}
+void getCellSock (int socket, int* noSocket, pCellSock* ac, pCellSock* ap) {
+	if (*ac != NULL && (*ac)->socket != socket && *noSocket != 1) {
+		*ap = *ac;
+		*ac = (*ac)->pNext;
+		(*noSocket)--;
+		getCellSock(socket, noSocket, ac, ap);
+	}
+}
+void exitSocketNotFind (pCellSock ac, int socket, int isNo) {
+	char type[14] = "socket";
+	if (isNo) {
+		sprintf(type, "%s numéro", type);
+	}
+	if (ac == NULL) {
+		printf("%s %d non trouvée\n", type, socket);
+		exit(1);
+	}
 }
 void rmSocket (lSocket *S, int socket) {
+	pCellSock ficCell = (pCellSock)malloc(sizeof(cellSock));
+	exitMemoryFull(ficCell);
+	ficCell->pNext = S->head;
 
+	pCellSock ac = S->head, ap = ficCell;
+	int noSocket = -1;
+	getCellSock(socket, &noSocket, &ac, &ap);
+	exitSocketNotFind(ac, socket, 0);
+	ap->pNext = ac->pNext;
+	free(ac);
+	S->head = ficCell->pNext;
+	free(ficCell);
+	(S->length)--;
 }
 int getSocket (lSocket S, int noSocket) {
-
+	pCellSock ac = S.head, ap = ac;
+	int noSocketTMP = noSocket;
+	getCellSock(-1, &noSocket, &ac, &ap);
+	exitSocketNotFind(ac, noSocketTMP, 1);
+	return ac->socket;
 }

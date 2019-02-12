@@ -19,12 +19,10 @@ int main (int argc,char *argv[]) {
         serverTCP(service);
       } else {
         printf("No mode [CLIENT/SERVEUR] detected\n");
-        printUsage();
-        exit(1);
+        exitWithUsage();
       }
     } else {
-      printUsage();
-      exit(1);
+      exitWithUsage();
     }
 
     return 0;
