@@ -13,35 +13,36 @@
 void serverTCP (char *port) {
 	printf("Running chat as server on port: %s\n", port);
 	/* création du processus serveur */
+	printf("Main thread PID: %d \n", getpid());
 	pid_t pid = fork();
 	if (pid > 0) {
 		runMainThread();
 		closeChat();
 	} else if (pid == PROCESSUS_FILS) { // new thread: listeningSocket
+		printf("PID %d created by parent %d", getpid(), getppid());
 		int listeningSocket = createListeningSocket(port);
 		registerSocket(listeningSocket, pid);	// TODO FAUX: car pid=0 pour process fils !!!
 		runListeningSocketThread(listeningSocket);
-		closeSocket(pid, listeningSocket);
+		closeSocket(getpid(), listeningSocket);
 	} else {
 		fprintf(stderr, "Erreur lors de la création du processus serveur.\n");
 	}
 
-	printf("Fermeture du chat\n");
-	// TODO avec tas: closeSocket(everySocket pid);
-	// mieux: utiliser un trap pour tuer les subprocesses
-	// encore mieux: kill 0
 }
 
 void closeChat () {
-
+	printf("Fermeture du chat\n");
+		// TODO avec tas: closeSocket(everySocket pid);
+		// mieux: utiliser un trap pour tuer les subprocesses
+		// encore mieux: kill 0
 }
 
 void registerSocket (pid_t pid, int socket) {
 	//TODO: list.add(pid, socket);
 }
 void closeSocket(pid_t p, int numSocket) {
-	kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
 	h_close(numSocket); /* fermeture de la socket en attente */
+	kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
 }
 
 void runMainThread () {
@@ -88,7 +89,7 @@ void handleNewConnection (int dedicatedSocket, struct sockaddr_in clientSocket) 
 		char clientName[BUFFER_SIZE] = "";
 		registerClient(dedicatedSocket, clientSocket, clientName);
 		handleClient(dedicatedSocket, clientSocket, clientName);
-		closeSocket(pid, dedicatedSocket);	// TODO: Faux: pid = 0 quand on est dans le fils
+		closeSocket(getpid(), dedicatedSocket);	// TODO: Faux: pid = 0 quand on est dans le fils
 	} else {
 		fprintf(stderr, "Erreur lors de la création du processus dedie client.\n");
 	}
@@ -100,6 +101,7 @@ void registerClient (int dedicatedSocket, struct sockaddr_in clientSocAddr, char
 		parseClientIp(clientSocAddr, clientIp);
 		// TODO sendToAll();
 		printf("%s (%s) entre dans le chat.\n", clientName, clientIp);
+		printf("I just want to say hello\n");
 }
 
 void parseClientName (int socketClient, char* clientName) {
@@ -120,6 +122,7 @@ void handleClient (int dedicatedSocket, struct sockaddr_in clientIp, char* clien
 	while (readClientInput(dedicatedSocket, clientIp, clientName) == 1) {
 		// TODO: sendToAll()
 		h_writes(dedicatedSocket, bufferEmission, BUFFER_SIZE);
+		printf("%s says \"%s\"\n", clientName, bufferEmission);
 	}
 	processClientLogout(clientName);
 }
@@ -128,10 +131,11 @@ int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* cli
 	int nbOctRecus = h_reads(dedicatedSocket, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
 	if (nbOctRecus == -1) {
 		throwSocketReceptionError();
+		return -1;
 	} else {
 		sprintf(bufferEmission, "%s : %s", clientName, bufferReception);
 	}
-	return isFlag(bufferReception, EXIT_CHAR);
+	return isFlag(bufferReception, EXIT_CHAR) != 1;
 }
 
 void processClientLogout (char* clientName) {
