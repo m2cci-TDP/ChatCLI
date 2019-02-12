@@ -11,27 +11,25 @@
 
 
 void serverTCP (char *port) {
-	printf("Running chat as server on port: %s\n", port);
-	/* création du processus serveur */
-	printf("Main thread PID: %d \n", getpid());
+	printf("[serverTCP] Running chat as server on port: %s\n", port);
+
+	int listeningSocket = createListeningSocket(port);
+
 	pid_t pid = fork();
 	if (pid > 0) {
+		// ici pid = PID{process_fils
 		runMainThread();
+		closeSocket(pid, listeningSocket);
 		closeChat();
-	} else if (pid == PROCESSUS_FILS) { // new thread: listeningSocket
-		printf("PID %d created by parent %d", getpid(), getppid());
-		int listeningSocket = createListeningSocket(port);
-		registerSocket(listeningSocket, pid);	// TODO FAUX: car pid=0 pour process fils !!!
+	} else if (pid == PROCESSUS_FILS) { // new thread: listeningSocket, pid = 0
 		runListeningSocketThread(listeningSocket);
-		closeSocket(getpid(), listeningSocket);
 	} else {
-		fprintf(stderr, "Erreur lors de la création du processus serveur.\n");
+		fprintf(stderr, "[serverTCP] Erreur lors de la création du processus serveur.\n");
 	}
-
 }
 
 void closeChat () {
-	printf("Fermeture du chat\n");
+	printf("[closeChat] Fermeture du chat\n");
 		// TODO avec tas: closeSocket(everySocket pid);
 		// mieux: utiliser un trap pour tuer les subprocesses
 		// encore mieux: kill 0
@@ -47,7 +45,7 @@ void closeSocket(pid_t p, int numSocket) {
 
 void runMainThread () {
 	char stop;
-	printf("Entrez [%s] pour arrêter Le processus.\n",EXIT_CHAR);
+	printf("[runMainThread] Entrez [%s] pour arrêter Le processus.\n",EXIT_CHAR);
 	do {
 		stop = getchar();
 		viderBuffer();
@@ -76,12 +74,13 @@ void runListeningSocketThread (int listeningSocket) {
 int waitForNewConnection (int listeningSocket, struct sockaddr_in* clientIp) {
 	int newSocket = 0;
 	while ((newSocket = h_accept(listeningSocket, clientIp)) == -1) {
-		fprintf(stderr, "Nombre de connexions complet.\n");
+		fprintf(stderr, "[waitForNewConnection] Nombre de connexions complet.\n");
 	}
 	return newSocket;
 }
 
 void handleNewConnection (int dedicatedSocket, struct sockaddr_in clientSocket) {
+	printf( "[handleNewConnection] Handling new connection to socket %d\n", dedicatedSocket);
 	pid_t pid = fork();
 	if (pid > 0) { // main thread : listeningSocket
 		registerSocket(pid, dedicatedSocket);
@@ -91,7 +90,7 @@ void handleNewConnection (int dedicatedSocket, struct sockaddr_in clientSocket) 
 		handleClient(dedicatedSocket, clientSocket, clientName);
 		closeSocket(getpid(), dedicatedSocket);	// TODO: Faux: pid = 0 quand on est dans le fils
 	} else {
-		fprintf(stderr, "Erreur lors de la création du processus dedie client.\n");
+		fprintf(stderr, "[handleNewConnection] Erreur lors de la création du processus dedie client.\n");
 	}
 }
 
@@ -100,8 +99,7 @@ void registerClient (int dedicatedSocket, struct sockaddr_in clientSocAddr, char
 		parseClientName(dedicatedSocket, clientName);
 		parseClientIp(clientSocAddr, clientIp);
 		// TODO sendToAll();
-		printf("%s (%s) entre dans le chat.\n", clientName, clientIp);
-		printf("I just want to say hello\n");
+		printf("[registerClient] %s (%s) entre dans le chat.\n", clientName, clientIp);
 }
 
 void parseClientName (int socketClient, char* clientName) {
@@ -119,10 +117,9 @@ void parseClientIp (struct sockaddr_in p_adr_client, char *ipAddr) {
 
 
 void handleClient (int dedicatedSocket, struct sockaddr_in clientIp, char* clientName) {
-	while (readClientInput(dedicatedSocket, clientIp, clientName) == 1) {
+	while (readClientInput(dedicatedSocket, clientIp, clientName)) {
 		// TODO: sendToAll()
 		h_writes(dedicatedSocket, bufferEmission, BUFFER_SIZE);
-		printf("%s says \"%s\"\n", clientName, bufferEmission);
 	}
 	processClientLogout(clientName);
 }
@@ -134,12 +131,13 @@ int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* cli
 		return -1;
 	} else {
 		sprintf(bufferEmission, "%s : %s", clientName, bufferReception);
+		printf("[readClientInput] %s says \"%s\"\n", clientName, bufferReception);
 	}
 	return isFlag(bufferReception, EXIT_CHAR) != 1;
 }
 
 void processClientLogout (char* clientName) {
-	printf("%s quitte le chat.\n", clientName);
+	printf("[processClientLogout] %s quitte le chat.\n", clientName);
 }
 
 /*
