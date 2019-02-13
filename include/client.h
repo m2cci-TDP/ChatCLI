@@ -3,6 +3,6 @@
 
 void clientTCP (char *serveur, char *service);
 void clientChat (int socket);
-void testServerConnection (int socket);
+int hasServerConnection (int socket);
 
 #endif
