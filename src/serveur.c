@@ -3,15 +3,20 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/signal.h>
+#include <sys/mman.h>
 #include <string.h>
 #include "util.h"
 #include "serveur.h"
 #include "fon.h"
 
+static lSocket *globalSocketList;
+
 void serverTCP (char *port) {
 	printf("[serverTCP] Running chat as server on port: %s\n", port);
 
 	int listeningSocket = createListeningSocket(port);
+	globalSocketList = mmap(NULL, sizeof *globalSocketList, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0); /* init shared memory */
+	makeLSocket(globalSocketList);
 
 	pid_t pid = fork();
 	if (pid > 0) {
@@ -23,6 +28,8 @@ void serverTCP (char *port) {
 	} else {
 		fprintf(stderr, "[serverTCP] Erreur lors de la création du processus serveur.\n");
 	}
+	rmLSocket(globalSocketList);
+	munmap(globalSocketList, sizeof *globalSocketList);
 }
 
 void closeChat (int listeningSocket, pid_t listeningSocketPid) {
@@ -34,7 +41,13 @@ void closeChat (int listeningSocket, pid_t listeningSocketPid) {
 }
 
 void registerSocket (pid_t pid, int socket) {
-	//TODO: list.add(pid, socket);
+	setSocket(globalSocketList, socket);
+	printf("[registerSocket] Nombre de socket : %d\n", getLength(*globalSocketList));
+}
+void closeSocketClient (pid_t pid, int socket) {
+	rmSocket(globalSocketList, socket);
+	printf("[closeSocketClient] Nombre de socket : %d\n", getLength(*globalSocketList));
+	h_close(socket);
 }
 
 void closeSocket(pid_t p, int numSocket) {
@@ -75,6 +88,7 @@ int waitForNewConnection (int listeningSocket, struct sockaddr_in* clientIp) {
 	while ((newSocket = h_accept(listeningSocket, clientIp)) == -1) {
 		fprintf(stderr, "[waitForNewConnection] Nombre de connexions complet.\n");
 	}
+	registerSocket(getpid(), newSocket);
 	return newSocket;
 }
 
@@ -87,8 +101,7 @@ void handleNewConnection (int dedicatedSocket, struct sockaddr_in clientSocket) 
 		char clientName[BUFFER_SIZE] = "";
 		registerClient(dedicatedSocket, clientSocket, clientName);
 		handleClient(dedicatedSocket, clientSocket, clientName);
-		h_close(dedicatedSocket);
-		//closeSocket(getpid(), dedicatedSocket);	// TODO: Faux: pid = 0 quand on est dans le fils
+		closeSocketClient(getpid(), dedicatedSocket);	// TODO: Faux: pid = 0 quand on est dans le fils
 	} else {
 		fprintf(stderr, "[handleNewConnection] Erreur lors de la création du processus du client.\n");
 	}
