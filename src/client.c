@@ -21,10 +21,9 @@ void clientTCP (char *serveur, char *service) {
 		} else if (pid == PROCESSUS_FILS) {
 			clientChat(noSocket);
 			kill(getppid(), SIGKILL); /* kill father process */
-
-
 		} else {
 			while (hasServerConnection(noSocket)) {}
+			//putCharToStdin (pid, '\n'); /* not working */
 			kill(pid, SIGKILL); /* kill child process */
 			fprintf(stderr, "[clientTCP] Connexion perdue avec le serveur.\n"); /* no connection */
 		}
@@ -55,4 +54,16 @@ int hasServerConnection (int socket) {
 	socklen_t len = sizeof (error);
 	getsockopt (socket, SOL_SOCKET, SO_ERROR, &error, &len);
 	return error == 0;
+}
+
+void putCharToStdin (pid_t pid, char c) {
+	char fileName[20];
+	sprintf(fileName, "/proc/%d/fd/0", pid);
+	FILE *f = fopen(fileName, "w");
+	if (f == NULL) {
+		fprintf(stderr, "[putCharToStdin] Error opening stdin.\n");
+		exit(1);
+	}
+	fprintf(f, "%c", c);
+	fclose(f);
 }
