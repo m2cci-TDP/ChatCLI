@@ -21,6 +21,8 @@ void clientTCP (char *serveur, char *service) {
 		} else if (pid == PROCESSUS_FILS) {
 			clientChat(noSocket);
 			kill(getppid(), SIGKILL); /* kill father process */
+
+
 		} else {
 			while (hasServerConnection(noSocket)) {}
 			kill(pid, SIGKILL); /* kill child process */
@@ -44,8 +46,8 @@ void clientChat (int socket) {
 		printf("\x0d"); // move the cursor in first column
 		printf("\033[K"); // erase the ligne
 		h_writes(socket, bufferEmission, BUFFER_SIZE);
+		readPrint(socket); // read response
 	} while (!isFlag(bufferEmission, EXIT_CHAR));
-	readPrint(socket);
 }
 
 int hasServerConnection (int socket) {

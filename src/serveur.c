@@ -136,7 +136,7 @@ int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* cli
 		sprintf(bufferEmission, "%s : %s\n", clientName, bufferReception);
 		printf("[readClientInput] %s says \"%s\"\n", clientName, bufferReception);
 	}
-	return isFlag(bufferReception, EXIT_CHAR) != 1;
+	return !isFlag(bufferReception, EXIT_CHAR);
 }
 
 void processClientLogout (char* clientName) {
