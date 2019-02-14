@@ -34,7 +34,7 @@ typedef struct {
 int getLength (lSocket S); /* return length */
 void makeLSocket (lSocket *S); /* constructeur */
 void rmLSocket (lSocket *S); /* destructeur */
-void setSocket (lSocket *S, int socket); /* add */
+void addSocket (lSocket *S, int socket); /* add */
 void rmSocket (lSocket *S, int socket); /* remove */
 int getSocket (lSocket S, int noSocket); /* getter */
 void sendToAll (lSocket S, char* message, int bufferSize);
@@ -48,6 +48,6 @@ int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode);
 void setMessage (char message[]);
 void viderBuffer(void);
 void sendMessage (int socket, char message[]);
-void readPrint (int socket);
+int readPrint (int socket);
 
 #endif

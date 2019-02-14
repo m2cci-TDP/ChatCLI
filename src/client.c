@@ -3,6 +3,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sys/signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "util.h"
 #include "client.h"
 #include "fon.h"
@@ -16,37 +18,44 @@ void clientTCP (char *serveur, char *service) {
 
 	adr_socket(SERVICE_DEFAUT, serveur, SOCK_STREAM, &socket_target);
 	if (h_connect(noSocket, socket_target) != -1) {
-		pid_t pid = fork();
-		if (pid < 0) {
-			fprintf(stderr, "[clientTCP] Erreur lors de la création du processus client.\n");
-		} else if (pid == PROCESSUS_FILS) {
-			clientChat(noSocket);
-			kill(getppid(), SIGKILL); /* kill father process */
-		} else {
-			while (hasServerConnection(noSocket)) {}
-			//putCharToStdin (pid, '\n'); /* not working */
-			kill(pid, SIGKILL); /* kill child process */
-			fprintf(stderr, "[clientTCP] Connexion perdue avec le serveur.\n"); /* no connection */
-		}
+		clientChat(noSocket);
 	}
 	h_close(noSocket);
 }
 
 void clientChat (int socket) {
-	readPrint(socket);
-	setMessage(bufferEmission);
-	h_writes(socket, bufferEmission, BUFFER_SIZE);
-	printf("\nVous avez choisi \"%s\" comme nom.\n", bufferEmission);
-	printf("Vous pouvez quitter l'application à tout moment en tapant [%s]\n\n", EXIT_CHAR);
-
-	do {
+	pid_t pid = fork();
+	if (pid < 0) {
+		fprintf(stderr, "[clientChat] Erreur lors de la création du processus client.\n");
+	} else if (pid == PROCESSUS_FILS) {
+		kill(getpid(), SIGSTOP); /* stop process */
+		sendKeyboardMessage(socket);
+		kill(getppid(), SIGKILL); /* kill parent process */
+	} else {
 		readPrint(socket);
+		setMessage(bufferEmission);
+		h_writes(socket, bufferEmission, BUFFER_SIZE);
+		kill(pid, SIGCONT); /* resume child process */
+
+		while (hasServerConnection(socket) && readPrint(socket)) {
+			//printf("\033[1A"); // move cursor one ligne up
+			printf("\x0d"); // move the cursor in first column
+			printf("\033[1B"); // move cursor one ligne down
+		}
+		kill(pid, SIGKILL); /* kill child process */
+		fprintf(stderr, "[clientTCP] Connexion perdue avec le serveur.\n"); /* no connection */
+	}
+}
+
+void sendKeyboardMessage (int socket) {
+	printf("\033[2B"); // move cursor two ligne down
+	do {
+		//printf("\nVotre message : ");
 		setMessage(bufferEmission);
 		eraseSendMessage();
 		h_writes(socket, bufferEmission, BUFFER_SIZE);
-		readPrint(socket); // read response
-		//readPrintFromAll()
 	} while (!isFlag(bufferEmission, EXIT_CHAR));
+	printf("\033[1B"); // move cursor one ligne down
 }
 
 int hasServerConnection (int socket) {

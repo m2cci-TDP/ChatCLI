@@ -28,8 +28,8 @@ void setup (void) {
 
   numSocket1 = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
   numSocket2 = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
-  setSocket(&S, numSocket1);
-  setSocket(&S, numSocket2);
+  addSocket(&S, numSocket1);
+  addSocket(&S, numSocket2);
 }
 void teardown (void) {
   rmLSocket(&S);
@@ -46,7 +46,7 @@ END_TEST
 START_TEST (test_socket)
 {
   int numSocket3 = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
-  setSocket(&S, numSocket3);
+  addSocket(&S, numSocket3);
   ck_assert_int_eq(getSocket(S, 1), numSocket3);
 }
 END_TEST

@@ -86,12 +86,14 @@ void throwSocketReceptionError() {
 	fprintf(stderr, "Erreur lors de la réception de la socket.\n");
 }
 
-void readPrint (int socket) {
-	if (h_reads(socket, bufferReception, BUFFER_SIZE) == -1) { /* lecture du message avant espaces */
-		fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+int readPrint (int socket) {
+	int success = h_reads(socket, bufferReception, BUFFER_SIZE) > 0; /* lecture du message avant espaces */
+	if (!success) {
+		fprintf(stderr, "[readPrint] Erreur lors de la réception de la socket.\n");
 	} else {
 		printf("%s", bufferReception); /* écriture */
 	}
+	return success;
 }
 void sendMessage (int socket, char message[]) {
 	sprintf(bufferEmission, "%s", message);
@@ -118,7 +120,7 @@ void exitMemoryFull (pCellSock p) {
 		exit(1);
 	}
 }
-void setSocket (lSocket *S, int socket) {
+void addSocket (lSocket *S, int socket) {
 	pCellSock newCell = (pCellSock)malloc(sizeof(cellSock));
 	exitMemoryFull(newCell);
 	newCell->socket = socket;

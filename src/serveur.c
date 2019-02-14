@@ -36,25 +36,19 @@ void serverTCP (char *port) {
 void closeChat (int listeningSocket, pid_t listeningSocketPid) {
 	//TODO: sendMessage ("le serveur ferme ses portes");
 	printf("[closeChat] Fermeture du chat\n");
-	h_close(listeningSocket);
-	kill(0, SIGTERM);
-	// closeSocket(listeningSocketPid, listeningSocket);
+	h_close(listeningSocket); /* fermeture de la socket en attente */
+	// kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
+	kill(listeningSocketPid, SIGTERM);
 }
 
 void registerSocket (pid_t pid, int socket) {
-	setSocket(globalSocketList, socket);
+	addSocket(globalSocketList, socket);
 	printf("[registerSocket] Nombre de socket : %d\n", getLength(*globalSocketList));
 }
 void closeSocketClient (pid_t pid, int socket) {
 	rmSocket(globalSocketList, socket);
 	printf("[closeSocketClient] Nombre de socket : %d\n", getLength(*globalSocketList));
 	h_close(socket);
-}
-
-void closeSocket(pid_t p, int numSocket) {
-	h_close(numSocket); /* fermeture de la socket en attente */
-	// kill(p, SIGUSR1); /* kill child process, need sudo if SIGKILL */
-	kill(0, SIGTERM);
 }
 
 void runMainThread () {
@@ -123,6 +117,10 @@ void parseClientName (int socketClient, char* clientName) {
 		throwSocketReceptionError();
 	} else {
 		strcpy(clientName, bufferReception);
+		sprintf(bufferEmission, "Vous avez choisi \"%s\" comme nom.", clientName);
+		sendMessage(socketClient, bufferEmission);
+		sprintf(bufferEmission, "Vous pouvez quitter l'application à tout moment en tapant [%s]\n\n\n", EXIT_CHAR);
+		sendMessage(socketClient, bufferEmission);
 	}
 }
 
@@ -141,7 +139,7 @@ void handleClient (int dedicatedSocket, struct sockaddr_in clientIp, char* clien
 }
 
 int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* clientName) {
-	sendMessage(dedicatedSocket, "\nVotre message : ");
+	//sendMessage(dedicatedSocket, "\nVotre message : ");
 	int nbOctRecus = h_reads(dedicatedSocket, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
 	if (nbOctRecus == -1) {
 		throwSocketReceptionError();
