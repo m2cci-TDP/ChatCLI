@@ -12,6 +12,7 @@
 static lSocket *globalSocketList;
 
 void serverTCP (char *port) {
+	clearScreen();
 	printf("[serverTCP] Running chat as server on port: %s\n", port);
 
 	int listeningSocket = createListeningSocket(port);
@@ -96,7 +97,7 @@ void handleNewConnection (int dedicatedSocket, struct sockaddr_in clientSocket) 
 	printf( "[handleNewConnection] Handling new connection to socket %d\n", dedicatedSocket);
 	pid_t pid = fork();
 	if (pid > 0) { // main thread : listeningSocket
-		registerSocket(pid, dedicatedSocket);
+		//registerSocket(pid, dedicatedSocket);
 	} else if (pid == PROCESSUS_FILS) { // new thread: clientDedicatedSocket
 		char clientName[BUFFER_SIZE] = "";
 		registerClient(dedicatedSocket, clientSocket, clientName);
@@ -129,18 +130,18 @@ void parseClientIp (struct sockaddr_in p_adr_client, char *ipAddr) {
 	inet_ntop(AF_INET, &p_adr_client.sin_addr, ipAddr, INET_ADDRSTRLEN);
 }
 
-
 void handleClient (int dedicatedSocket, struct sockaddr_in clientIp, char* clientName) {
 	while (readClientInput(dedicatedSocket, clientIp, clientName)) {
 		// TODO: sendToAll()
-		h_writes(dedicatedSocket, bufferEmission, BUFFER_SIZE);
+		//h_writes(dedicatedSocket, bufferEmission, BUFFER_SIZE);
+		sendToAll(*globalSocketList, bufferEmission, BUFFER_SIZE);
 	}
 	processClientLogout(clientName);
 	sendMessage(dedicatedSocket, "\nA bientôt !\nMerci d'avoir utiliser le chat !\n");
 }
 
 int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* clientName) {
-	sendMessage(dedicatedSocket, "Votre message : ");
+	sendMessage(dedicatedSocket, "\nVotre message : ");
 	int nbOctRecus = h_reads(dedicatedSocket, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
 	if (nbOctRecus == -1) {
 		throwSocketReceptionError();

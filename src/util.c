@@ -173,3 +173,14 @@ int getSocket (lSocket S, int noSocket) {
 	exitSocketNotFind(ac, noSocketTMP, 1);
 	return ac->socket;
 }
+void sendToAllSockets (pCellSock ac, char* message, int bufferSize) {
+	if (ac != NULL) {
+		h_writes(ac->socket, message, bufferSize);
+		sendToAllSockets(ac->pNext, message, bufferSize);
+	}
+}
+void sendToAll (lSocket S, char* message, int bufferSize) {
+	if (getLength(S) > 0) {
+		sendToAllSockets(S.head, message, bufferSize);
+	}
+}

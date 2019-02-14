@@ -8,6 +8,7 @@
 #include "fon.h"
 
 void clientTCP (char *serveur, char *service) {
+	clearScreen();
 	printf("Running chat as client on server: %s and port: %s\n", serveur, service);
 
 	int noSocket = h_socket(AF_INET, SOCK_STREAM);
@@ -41,11 +42,10 @@ void clientChat (int socket) {
 	do {
 		readPrint(socket);
 		setMessage(bufferEmission);
-		printf("\033[1A"); // move cursor one ligne up
-		printf("\x0d"); // move the cursor in first column
-		printf("\033[K"); // erase the ligne
+		eraseSendMessage();
 		h_writes(socket, bufferEmission, BUFFER_SIZE);
 		readPrint(socket); // read response
+		//readPrintFromAll()
 	} while (!isFlag(bufferEmission, EXIT_CHAR));
 }
 
@@ -66,4 +66,12 @@ void putCharToStdin (pid_t pid, char c) {
 	}
 	fprintf(f, "%c", c);
 	fclose(f);
+}
+
+/* only for linux terminal */
+void eraseSendMessage (void) {
+	printf("\033[1A"); // move cursor one ligne up
+	printf("\x0d"); // move the cursor in first column
+	printf("\033[K"); // erase the ligne
+	printf("\033[1A"); // move cursor one ligne up
 }

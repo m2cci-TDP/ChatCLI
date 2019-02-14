@@ -13,8 +13,8 @@ typedef int Mode;
 
 #define PROCESSUS_FILS 0
 
-
 #define EXIT_CHAR "exit"
+#define clearScreen() system("@cls||clear")
 
 char bufferEmission[BUFFER_SIZE+1];
 char bufferReception[BUFFER_SIZE+1];
@@ -37,6 +37,7 @@ void rmLSocket (lSocket *S); /* destructeur */
 void setSocket (lSocket *S, int socket); /* add */
 void rmSocket (lSocket *S, int socket); /* remove */
 int getSocket (lSocket S, int noSocket); /* getter */
+void sendToAll (lSocket S, char* message, int bufferSize);
 
 void throwSocketReceptionError();
 void printUsage();
@@ -46,7 +47,6 @@ int isFlag(char* string, char* flag);
 int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode);
 void setMessage (char message[]);
 void viderBuffer(void);
-
 void sendMessage (int socket, char message[]);
 void readPrint (int socket);
 
