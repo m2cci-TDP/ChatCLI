@@ -1,5 +1,5 @@
-# TpReseaux4
-temporary repository for a network application
+# ChatCLI
+Chat in command line with a server and several clients
 
 ## Compilation
 `make` <br/>
@@ -8,7 +8,7 @@ temporary repository for a network application
 ## Execution
 `cd bin` <br/>
 `./chat -h` for help <br/>
-`./chat -c [-t ipAdress] [-p port]` for the client <br/>
+`./chat -c [-t IP adress of the server] [-p port]` for the client <br/>
 `./chat -s [-p port]` for the server
 
 ### Example
