@@ -11,7 +11,7 @@ int isFlag (char* string, char* flag) {
 	return strcmp(string, flag) == 0;
 }
 
-void setMessage (char message[]) {
+void getString (char message[]) {
 	char c;
 	if ((c = getchar()) != '\n' && c != EOF) {
 		strcpy(message, &c);
@@ -82,7 +82,7 @@ int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode) {
 	return readingSuccess;
 }
 
-void throwSocketReceptionError() {
+void throwSocketReceptionError () {
 	fprintf(stderr, "Erreur lors de la réception de la socket.\n");
 }
 
@@ -114,7 +114,7 @@ void rmLSocket (lSocket *S) {
 		rmLSocket(S);
 	}
 }
-void exitMemoryFull (pCellSock p) {
+void exitIfMemoryFull (pCellSock p) {
 	if (p == NULL) {
 		fprintf(stderr, "Mémoire pleine.\n");
 		exit(1);
@@ -122,7 +122,7 @@ void exitMemoryFull (pCellSock p) {
 }
 void addSocket (lSocket *S, int socket) {
 	pCellSock newCell = (pCellSock)malloc(sizeof(cellSock));
-	exitMemoryFull(newCell);
+	exitIfMemoryFull(newCell);
 	newCell->socket = socket;
 	newCell->pNext = NULL;
 	if (S->head == NULL) {
@@ -155,7 +155,7 @@ void exitSocketNotFind (pCellSock ac, int socket, int isNo) {
 }
 void rmSocket (lSocket *S, int socket) {
 	pCellSock ficCell = (pCellSock)malloc(sizeof(cellSock));
-	exitMemoryFull(ficCell);
+	exitIfMemoryFull(ficCell);
 	ficCell->pNext = S->head;
 
 	pCellSock ac = S->head, ap = ficCell;

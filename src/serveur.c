@@ -55,7 +55,7 @@ void runMainThread () {
 	char stop[5];
 	printf("[runMainThread] Entrez [%s] pour arrêter Le processus.\n", EXIT_CHAR);
 	do {
-		setMessage(stop);
+		getString(stop);
 	}	while (!isFlag(stop, EXIT_CHAR));
 }
 
@@ -64,7 +64,10 @@ int createListeningSocket(char* port) {
 	int numSocket = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
 	struct sockaddr_in *p_adr_serveur;
 	adr_socket(port, NULL, SOCK_STREAM, &p_adr_serveur); /* création de l'adresse de la socket */
-	if (h_bind(numSocket, p_adr_serveur) != -1) {
+	if (h_bind(numSocket, p_adr_serveur) == -1) {
+		fprintf(stderr, "[createListeningSocket] Echec de la création du server.\n");
+		exit(1);
+	} else {
 		h_listen(numSocket, NB_CON);
 	}
 	return numSocket;

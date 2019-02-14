@@ -45,7 +45,7 @@ void exitWithUsage (void);
 
 int isFlag(char* string, char* flag);
 int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode);
-void setMessage (char message[]);
+void getString (char message[]);
 void viderBuffer(void);
 void sendMessage (int socket, char message[]);
 int readPrint (int socket);

@@ -33,7 +33,7 @@ void clientChat (int socket) {
 		kill(getppid(), SIGKILL); /* kill parent process */
 	} else {
 		readPrint(socket);
-		setMessage(bufferEmission);
+		getString(bufferEmission);
 		h_writes(socket, bufferEmission, BUFFER_SIZE);
 		kill(pid, SIGCONT); /* resume child process */
 
@@ -43,7 +43,7 @@ void clientChat (int socket) {
 			printf("\033[1B"); // move cursor one ligne down
 		}
 		kill(pid, SIGKILL); /* kill child process */
-		fprintf(stderr, "[clientTCP] Connexion perdue avec le serveur.\n"); /* no connection */
+		fprintf(stderr, "[clientChat] Connexion perdue avec le serveur.\n"); /* no connection */
 	}
 }
 
@@ -51,7 +51,7 @@ void sendKeyboardMessage (int socket) {
 	printf("\033[2B"); // move cursor two ligne down
 	do {
 		//printf("\nVotre message : ");
-		setMessage(bufferEmission);
+		getString(bufferEmission);
 		eraseSendMessage();
 		h_writes(socket, bufferEmission, BUFFER_SIZE);
 	} while (!isFlag(bufferEmission, EXIT_CHAR));
