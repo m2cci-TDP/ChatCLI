@@ -12,6 +12,7 @@ int isFlag (char* string, char* flag) {
 }
 
 void getString (char message[]) {
+	strcpy(message, "");
 	char c;
 	if ((c = getchar()) != '\n' && c != EOF) {
 		strcpy(message, &c);
@@ -182,7 +183,8 @@ void sendToAllSockets (pCellSock ac, char* message, int bufferSize) {
 	}
 }
 void sendToAll (lSocket S, char* message, int bufferSize) {
-	if (getLength(S) > 0) {
+	if (getLength(S) > 0 && !isFlag(message, "")) {
 		sendToAllSockets(S.head, message, bufferSize);
+		strcpy(message, "");
 	}
 }

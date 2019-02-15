@@ -143,15 +143,18 @@ void handleClient (int dedicatedSocket, struct sockaddr_in clientIp, char* clien
 
 int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* clientName) {
 	//sendMessage(dedicatedSocket, "\nVotre message : ");
+	int test = -1;
 	int nbOctRecus = h_reads(dedicatedSocket, bufferReception, BUFFER_SIZE); /* lecture du message avant espaces */
 	if (nbOctRecus == -1) {
 		throwSocketReceptionError();
-		return -1;
 	} else {
-		sprintf(bufferEmission, "%s : %s\n", clientName, bufferReception);
-		printf("[readClientInput] %s says \"%s\"\n", clientName, bufferReception);
+		if (!isFlag(bufferReception, "")) {
+			sprintf(bufferEmission, "%s : %s\n", clientName, bufferReception);
+			printf("[readClientInput] %s says \"%s\"\n", clientName, bufferReception);
+		}
+		test = !isFlag(bufferReception, EXIT_CHAR);
 	}
-	return !isFlag(bufferReception, EXIT_CHAR);
+	return test;
 }
 
 void processClientLogout (char* clientName) {
