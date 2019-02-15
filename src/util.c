@@ -188,3 +188,13 @@ void sendToAll (lSocket S, char* message, int bufferSize) {
 		strcpy(message, "");
 	}
 }
+void printAllSockets (pCellSock ac) {
+	if (ac != NULL) {
+		printf("%d ", ac->socket);
+		printAllSockets(ac->pNext);
+	}
+}
+void printAll (lSocket S) {
+	printAllSockets(S.head);
+	printf("\n");
+}

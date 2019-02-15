@@ -16,7 +16,7 @@ void serverTCP (char *port) {
 	printf("[serverTCP] Running chat as server on port: %s\n", port);
 
 	int listeningSocket = createListeningSocket(port);
-	globalSocketList = mmap(NULL, sizeof *globalSocketList, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0); /* init shared memory */
+	globalSocketList = mmap(NULL, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0); /* init shared memory */
 	makeLSocket(globalSocketList);
 
 	pid_t pid = fork();
@@ -30,7 +30,7 @@ void serverTCP (char *port) {
 		fprintf(stderr, "[serverTCP] Erreur lors de la création du processus serveur.\n");
 	}
 	rmLSocket(globalSocketList);
-	munmap(globalSocketList, sizeof *globalSocketList);
+	munmap(globalSocketList, MAP_SIZE);
 }
 
 void closeChat (int listeningSocket, pid_t listeningSocketPid) {
@@ -43,11 +43,13 @@ void closeChat (int listeningSocket, pid_t listeningSocketPid) {
 
 void registerSocket (pid_t pid, int socket) {
 	addSocket(globalSocketList, socket);
-	printf("[registerSocket] Nombre de socket : %d\n", getLength(*globalSocketList));
+	printf("[registerSocket] Nombre de socket : %d\n\tNo des sockets ouvertes : ", getLength(*globalSocketList));
+	printAll(*globalSocketList);
 }
 void closeSocketClient (pid_t pid, int socket) {
 	rmSocket(globalSocketList, socket);
-	printf("[closeSocketClient] Nombre de socket : %d\n", getLength(*globalSocketList));
+	printf("[closeSocketClient] Nombre de socket : %d\n\tNo des sockets ouvertes : ", getLength(*globalSocketList));
+	printAll(*globalSocketList);
 	h_close(socket);
 }
 
@@ -109,8 +111,9 @@ void registerClient (int dedicatedSocket, struct sockaddr_in clientSocAddr, char
 	char clientIp[INET_ADDRSTRLEN];
 	parseClientName(dedicatedSocket, clientName);
 	parseClientIp(clientSocAddr, clientIp);
-	// TODO sendToAll();
-	printf("[registerClient] %s (%s) entre dans le chat.\n", clientName, clientIp);
+	sprintf(bufferEmission, "%s (%s) entre dans le chat.", clientName, clientIp);
+	printf("[registerClient] %s\n", bufferEmission);
+	sendToAll(*globalSocketList, bufferEmission, BUFFER_SIZE);
 }
 
 void parseClientName (int socketClient, char* clientName) {

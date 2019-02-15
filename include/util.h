@@ -30,6 +30,7 @@ typedef struct {
   int length;
   pCellSock head;
 } lSocket;
+#define MAP_SIZE sizeof(lSocket)*NB_CON*sizeof(cellSock)
 /* methods */
 int getLength (lSocket S); /* return length */
 void makeLSocket (lSocket *S); /* constructeur */
@@ -38,6 +39,7 @@ void addSocket (lSocket *S, int socket); /* add */
 void rmSocket (lSocket *S, int socket); /* remove */
 int getSocket (lSocket S, int noSocket); /* getter */
 void sendToAll (lSocket S, char* message, int bufferSize);
+void printAll (lSocket S);
 
 void throwSocketReceptionError();
 void printUsage();
