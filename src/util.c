@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/signal.h>
 #include <sys/types.h>
+#include <sys/mman.h>
 #include "util.h"
 #include "fon.h"
 
@@ -109,10 +110,10 @@ void makeLSocket (lSocket *S) {
 	S->length = 0;
 	S->head = NULL;
 }
-void rmLSocket (lSocket *S) {
+void rmLSocket (lSocket *S, int shared) {
 	if (S->head != NULL) {
-		rmSocket(S, (S->head)->socket);
-		rmLSocket(S);
+		rmSocket(S, (S->head)->socket, shared);
+		rmLSocket(S, shared);
 	}
 }
 void exitIfMemoryFull (pCellSock p) {
@@ -121,8 +122,13 @@ void exitIfMemoryFull (pCellSock p) {
 		exit(1);
 	}
 }
-void addSocket (lSocket *S, int socket) {
-	pCellSock newCell = (pCellSock)malloc(sizeof(cellSock));
+void addSocket (lSocket *S, int socket, int shared) {
+	pCellSock newCell;
+	if (shared) {
+		newCell = (pCellSock)mmap(newCell, CELL_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0); /* init shared memory */
+	} else {
+		newCell = (pCellSock)malloc(CELL_SIZE);
+	}
 	exitIfMemoryFull(newCell);
 	newCell->socket = socket;
 	newCell->pNext = NULL;
@@ -154,7 +160,7 @@ void exitSocketNotFind (pCellSock ac, int socket, int isNo) {
 		exit(1);
 	}
 }
-void rmSocket (lSocket *S, int socket) {
+void rmSocket (lSocket *S, int socket, int shared) {
 	pCellSock ficCell = (pCellSock)malloc(sizeof(cellSock));
 	exitIfMemoryFull(ficCell);
 	ficCell->pNext = S->head;
@@ -164,7 +170,11 @@ void rmSocket (lSocket *S, int socket) {
 	getCellSock(socket, &noSocket, &ac, &ap);
 	exitSocketNotFind(ac, socket, 0);
 	ap->pNext = ac->pNext;
-	free(ac);
+	if (shared) {
+		munmap(ac, CELL_SIZE);
+	} else {
+		free(ac);
+	}
 	S->head = ficCell->pNext;
 	free(ficCell);
 	(S->length)--;
