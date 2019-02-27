@@ -31,6 +31,7 @@ void clientChat (int socket) {
 		kill(getpid(), SIGSTOP); /* stop process */
 		sendKeyboardMessage(socket);
 		kill(getppid(), SIGKILL); /* kill parent process */
+		readPrint(socket); // for goodbye message
 	} else {
 		readPrint(socket);
 		getString(bufferEmission);
