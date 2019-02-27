@@ -110,10 +110,10 @@ void makeLSocket (lSocket *S) {
 	S->length = 0;
 	S->head = NULL;
 }
-void rmLSocket (lSocket *S, int shared) {
+void rmLSocket (lSocket *S) {
 	if (S->head != NULL) {
-		rmSocket(S, (S->head)->socket, shared);
-		rmLSocket(S, shared);
+		rmSocket(S, (S->head)->socket);
+		rmLSocket(S);
 	}
 }
 void exitIfMemoryFull (pCellSock p) {
@@ -122,14 +122,15 @@ void exitIfMemoryFull (pCellSock p) {
 		exit(1);
 	}
 }
-void addSocket (lSocket *S, int socket, int shared) {
+void addSocket (lSocket *S, int socket) {
+	//pCellSock newCell = (pCellSock)malloc(CELL_SIZE);
+	//exitIfMemoryFull(newCell);
 	pCellSock newCell;
-	if (shared) {
-		newCell = (pCellSock)mmap(newCell, CELL_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0); /* init shared memory */
-	} else {
-		newCell = (pCellSock)malloc(CELL_SIZE);
+	if ((newCell = mmap(NULL, CELL_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED) { /* init shared memory */
+		fprintf(stderr, "Echec de la création de la mémoire partagée.\n");
+		exit(1);
 	}
-	exitIfMemoryFull(newCell);
+
 	newCell->socket = socket;
 	newCell->pNext = NULL;
 	if (S->head == NULL) {
@@ -160,7 +161,7 @@ void exitSocketNotFind (pCellSock ac, int socket, int isNo) {
 		exit(1);
 	}
 }
-void rmSocket (lSocket *S, int socket, int shared) {
+void rmSocket (lSocket *S, int socket) {
 	pCellSock ficCell = (pCellSock)malloc(sizeof(cellSock));
 	exitIfMemoryFull(ficCell);
 	ficCell->pNext = S->head;
@@ -170,11 +171,8 @@ void rmSocket (lSocket *S, int socket, int shared) {
 	getCellSock(socket, &noSocket, &ac, &ap);
 	exitSocketNotFind(ac, socket, 0);
 	ap->pNext = ac->pNext;
-	if (shared) {
-		munmap(ac, CELL_SIZE);
-	} else {
-		free(ac);
-	}
+	munmap(ac, CELL_SIZE);
+	//free(ac);
 	S->head = ficCell->pNext;
 	free(ficCell);
 	(S->length)--;
@@ -188,12 +186,14 @@ int getSocket (lSocket S, int noSocket) {
 }
 void sendToAllSockets (pCellSock ac, char* message, int bufferSize) {
 	if (ac != NULL) {
+		printf("[sendToAllSockets process %d] %d at %p\n", getpid(), ac->socket, ac);
 		h_writes(ac->socket, message, bufferSize);
 		sendToAllSockets(ac->pNext, message, bufferSize);
 	}
 }
 void sendToAll (lSocket S, char* message, int bufferSize) {
 	if (getLength(S) > 0 && !isFlag(message, "")) {
+		printf("[sendToAll process %d] Tete at %p\n", getpid(), S.head);
 		sendToAllSockets(S.head, message, bufferSize);
 		strcpy(message, "");
 	}

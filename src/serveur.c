@@ -16,7 +16,10 @@ void serverTCP (char *port) {
 	printf("[serverTCP] Running chat as server on port: %s\n", port);
 
 	int listeningSocket = createListeningSocket(port);
-	globalSocketList = (lSocket*)mmap(NULL, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0); /* init shared memory */
+	if ((globalSocketList = mmap(NULL, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED) { /* init shared memory */
+		fprintf(stderr, "Echec de la création de la mémoire partagée.\n");
+		exit(1);
+	}
 	makeLSocket(globalSocketList);
 
 	pid_t pid = fork();
@@ -29,7 +32,7 @@ void serverTCP (char *port) {
 	} else {
 		fprintf(stderr, "[serverTCP] Erreur lors de la création du processus serveur.\n");
 	}
-	rmLSocket(globalSocketList, 1);
+	rmLSocket(globalSocketList);
 	munmap(globalSocketList, MAP_SIZE);
 }
 
@@ -42,12 +45,12 @@ void closeChat (int listeningSocket, pid_t listeningSocketPid) {
 }
 
 void registerSocket (pid_t pid, int socket) {
-	addSocket(globalSocketList, socket, 1);
+	addSocket(globalSocketList, socket);
 	printf("[registerSocket] Nombre de socket : %d\n\tNo des sockets ouvertes : ", getLength(*globalSocketList));
 	printAll(*globalSocketList);
 }
 void closeSocketClient (pid_t pid, int socket) {
-	rmSocket(globalSocketList, socket, 1);
+	rmSocket(globalSocketList, socket);
 	printf("[closeSocketClient] Nombre de socket : %d\n\tNo des sockets ouvertes : ", getLength(*globalSocketList));
 	printAll(*globalSocketList);
 	h_close(socket);
@@ -153,7 +156,7 @@ int readClientInput (int dedicatedSocket, struct sockaddr_in clientIp, char* cli
 	} else {
 		if (!isFlag(bufferReception, "")) {
 			sprintf(bufferEmission, "%s : %s\n", clientName, bufferReception);
-			printf("[readClientInput] %s says \"%s\"\n", clientName, bufferReception);
+			printf("[readClientInput process %d] %s says \"%s\"\n", getpid(), clientName, bufferReception);
 		}
 		test = !isFlag(bufferReception, EXIT_CHAR);
 	}

@@ -35,9 +35,9 @@ typedef struct {
 /* methods */
 int getLength (lSocket S); /* return length */
 void makeLSocket (lSocket *S); /* constructeur */
-void rmLSocket (lSocket *S, int shared); /* destructeur */
-void addSocket (lSocket *S, int socket, int shared); /* add */
-void rmSocket (lSocket *S, int socket, int shared); /* remove */
+void rmLSocket (lSocket *S); /* destructeur */
+void addSocket (lSocket *S, int socket); /* add */
+void rmSocket (lSocket *S, int socket); /* remove */
 int getSocket (lSocket S, int noSocket); /* getter */
 void sendToAll (lSocket S, char* message, int bufferSize);
 void printAll (lSocket S);
