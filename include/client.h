@@ -3,5 +3,9 @@
 
 void clientTCP (char *serveur, char *service);
 void clientChat (int socket);
+int hasServerConnection (int socket);
+void putCharToStdin (pid_t pid, char c);
+void eraseSendMessage (void);
+void sendKeyboardMessage (int socket);
 
 #endif

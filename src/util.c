@@ -4,14 +4,18 @@
 #include <unistd.h>
 #include <sys/signal.h>
 #include <sys/types.h>
+#include <sys/mman.h>
 #include "util.h"
 #include "fon.h"
 
+/* comparaison de chaine de caractère */
 int isFlag (char* string, char* flag) {
 	return strcmp(string, flag) == 0;
 }
 
-void setMessage (char message[]) {
+/* remplissage d'un tableau par le clavier avec vidange du buffer */
+void getString (char message[]) {
+	strcpy(message, "");
 	char c;
 	if ((c = getchar()) != '\n' && c != EOF) {
 		strcpy(message, &c);
@@ -23,6 +27,7 @@ void setMessage (char message[]) {
 	//viderBuffer();
 }
 
+/* not use */
 void viderBuffer(void)
 {
 	char poubelle;
@@ -30,6 +35,7 @@ void viderBuffer(void)
 	while (poubelle != '\n' && poubelle != EOF);
 }
 
+/* help interface */
 void printUsage (){
 	printf("Usage: chat [-c/-s] [OPTIONS]\n");
 	printf("-s, --server\t\tmode server\n");
@@ -45,6 +51,7 @@ void exitWithUsage (void) {
 	exit(1);
 }
 
+/* lecture des options du CLI */
 int readStringParam(int argc, char *argv[], int index, char** output) {
 	if (index >= argc || strncmp(argv[index], "-", 1) == 0 ) {
 		return 0;
@@ -54,6 +61,7 @@ int readStringParam(int argc, char *argv[], int index, char** output) {
 	}
 }
 
+/* CLI */
 int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode) {
 	*mode = -1;
 	int readingSuccess = 1;
@@ -82,52 +90,67 @@ int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode) {
 	return readingSuccess;
 }
 
-void throwSocketReceptionError() {
+void throwSocketReceptionError () {
 	fprintf(stderr, "Erreur lors de la réception de la socket.\n");
 }
 
-void readPrint (int socket) {
-	if (h_reads(socket, bufferReception, BUFFER_SIZE) == -1) { /* lecture du message avant espaces */
-		fprintf(stderr, "Erreur lors de la réception de la socket.\n");
+/* reception du message du serveur puis impression à l'écran */
+int readPrint (int socket) {
+	int success = h_reads(socket, bufferReception, BUFFER_SIZE) > 0; /* lecture du message avant espaces */
+	if (!success) {
+		fprintf(stderr, "[readPrint] Erreur lors de la réception de la socket.\n");
 	} else {
 		printf("%s", bufferReception); /* écriture */
 	}
+	return success;
 }
+
+/* envoi d'un chaine de caractère par TCP */
 void sendMessage (int socket, char message[]) {
 	sprintf(bufferEmission, "%s", message);
 	h_writes(socket, bufferEmission, BUFFER_SIZE);
 }
 
-/* liste chainée */
+/* liste chainée
+* voir util.h
+*/
 int getLength (lSocket S) {
 	return S.length;
 }
 void makeLSocket (lSocket *S) {
 	S->length = 0;
 	S->head = NULL;
-	S->tail = NULL;
 }
 void rmLSocket (lSocket *S) {
-
+	if (S->head != NULL) {
+		rmSocket(S, (S->head)->socket);
+		rmLSocket(S);
+	}
 }
-void exitMemoryFull (pCellSock p) {
+void exitIfMemoryFull (pCellSock p) {
 	if (p == NULL) {
 		fprintf(stderr, "Mémoire pleine.\n");
 		exit(1);
 	}
 }
-void setSocket (lSocket *S, int socket) {
-	pCellSock newCell = (pCellSock)malloc(sizeof(cellSock));
-	exitMemoryFull(newCell);
+void addSocket (lSocket *S, int socket) {
+	//pCellSock newCell = (pCellSock)malloc(CELL_SIZE);
+	//exitIfMemoryFull(newCell);
+	pCellSock newCell;
+	if ((newCell = mmap(NULL, CELL_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED) { /* init shared memory */
+		fprintf(stderr, "Echec de la création de la mémoire partagée.\n");
+		exit(1);
+	}
+
 	newCell->socket = socket;
 	newCell->pNext = NULL;
 	if (S->head == NULL) {
 		/* première socket */
 		S->head = newCell;
-		S->tail = newCell;
 	} else {
-		(S->tail)->pNext = newCell;
-		S->tail = newCell;
+		/* ajout en tête */
+		newCell->pNext = S->head;
+		S->head = newCell;
 	}
 	(S->length)++;
 }
@@ -151,7 +174,7 @@ void exitSocketNotFind (pCellSock ac, int socket, int isNo) {
 }
 void rmSocket (lSocket *S, int socket) {
 	pCellSock ficCell = (pCellSock)malloc(sizeof(cellSock));
-	exitMemoryFull(ficCell);
+	exitIfMemoryFull(ficCell);
 	ficCell->pNext = S->head;
 
 	pCellSock ac = S->head, ap = ficCell;
@@ -159,7 +182,8 @@ void rmSocket (lSocket *S, int socket) {
 	getCellSock(socket, &noSocket, &ac, &ap);
 	exitSocketNotFind(ac, socket, 0);
 	ap->pNext = ac->pNext;
-	free(ac);
+	munmap(ac, CELL_SIZE);
+	//free(ac);
 	S->head = ficCell->pNext;
 	free(ficCell);
 	(S->length)--;
@@ -170,4 +194,28 @@ int getSocket (lSocket S, int noSocket) {
 	getCellSock(-1, &noSocket, &ac, &ap);
 	exitSocketNotFind(ac, noSocketTMP, 1);
 	return ac->socket;
+}
+void sendToAllSockets (pCellSock ac, char* message, int bufferSize) {
+	if (ac != NULL) {
+		printf("[sendToAllSockets process %d] %d at %p\n", getpid(), ac->socket, ac);
+		h_writes(ac->socket, message, bufferSize);
+		sendToAllSockets(ac->pNext, message, bufferSize);
+	}
+}
+void sendToAll (lSocket S, char* message, int bufferSize) {
+	if (getLength(S) > 0 && !isFlag(message, "")) {
+		printf("[sendToAll process %d] Tete at %p\n", getpid(), S.head);
+		sendToAllSockets(S.head, message, bufferSize);
+		strcpy(message, "");
+	}
+}
+void printAllSockets (pCellSock ac) {
+	if (ac != NULL) {
+		printf("%d ", ac->socket);
+		printAllSockets(ac->pNext);
+	}
+}
+void printAll (lSocket S) {
+	printAllSockets(S.head);
+	printf("\n");
 }

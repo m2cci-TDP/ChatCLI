@@ -3,7 +3,6 @@
 
 //TODO move dans socketUtils
 void registerSocket (pid_t pid, int socket);
-void closeSocket(pid_t p, int numSocket);
 
 void serverTCP (char*);
 

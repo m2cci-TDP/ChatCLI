@@ -28,8 +28,8 @@ void setup (void) {
 
   numSocket1 = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
   numSocket2 = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
-  setSocket(&S, numSocket1);
-  setSocket(&S, numSocket2);
+  addSocket(&S, numSocket1);
+  addSocket(&S, numSocket2);
 }
 void teardown (void) {
   rmLSocket(&S);
@@ -46,14 +46,23 @@ END_TEST
 START_TEST (test_socket)
 {
   int numSocket3 = h_socket(AF_INET, SOCK_STREAM); /* création de la socket */
-  setSocket(&S, numSocket3);
-  ck_assert_int_eq(getSocket(S, 3), numSocket3);
+  addSocket(&S, numSocket3);
+  ck_assert_int_eq(getSocket(S, 1), numSocket3);
+  ck_assert_int_eq(getSocket(S, 2), numSocket2);
+  ck_assert_int_eq(getSocket(S, 3), numSocket1);
 }
 END_TEST
 
 START_TEST (test_socket_fail)
 {
-  ck_assert_int_eq(getSocket(S, 4), 4);
+  //ck_assert_int_eq(getSocket(S, 4), 4); h_write ne marche pas si socket non init
+}
+END_TEST
+
+START_TEST (test_send_all)
+{
+  char message[6] = "salut";
+  sendToAll(S, message, 6);
 }
 END_TEST
 
@@ -69,6 +78,7 @@ Suite* lSocket_suite (void) {
   tcase_add_test(tc_core, test_length);
   tcase_add_test(tc_core, test_socket);
   tcase_add_exit_test(tc_core, test_socket_fail, 1);
+  tcase_add_test(tc_core, test_send_all);
   suite_add_tcase(s, tc_core);
 
   return s;

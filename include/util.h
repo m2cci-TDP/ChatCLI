@@ -13,9 +13,8 @@ typedef int Mode;
 
 #define PROCESSUS_FILS 0
 
-
 #define EXIT_CHAR "exit"
-
+#define clearScreen() system("@cls||clear")
 
 char bufferEmission[BUFFER_SIZE+1];
 char bufferReception[BUFFER_SIZE+1];
@@ -30,15 +29,18 @@ typedef cellSock *pCellSock;
 typedef struct {
   int length;
   pCellSock head;
-  pCellSock tail;
 } lSocket;
+#define MAP_SIZE sizeof(lSocket)
+#define CELL_SIZE sizeof(cellSock)
 /* methods */
 int getLength (lSocket S); /* return length */
 void makeLSocket (lSocket *S); /* constructeur */
 void rmLSocket (lSocket *S); /* destructeur */
-void setSocket (lSocket *S, int socket); /* add */
+void addSocket (lSocket *S, int socket); /* add */
 void rmSocket (lSocket *S, int socket); /* remove */
 int getSocket (lSocket S, int noSocket); /* getter */
+void sendToAll (lSocket S, char* message, int bufferSize); /* envoi du message à toutes les sockets en récursif */
+void printAll (lSocket S); /* affiche toutes les sockets ouvertes */
 
 void throwSocketReceptionError();
 void printUsage();
@@ -46,10 +48,9 @@ void exitWithUsage (void);
 
 int isFlag(char* string, char* flag);
 int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode);
-void setMessage (char message[]);
+void getString (char message[]);
 void viderBuffer(void);
-
 void sendMessage (int socket, char message[]);
-void readPrint (int socket);
+int readPrint (int socket);
 
 #endif
