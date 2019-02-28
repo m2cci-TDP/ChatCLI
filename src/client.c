@@ -103,8 +103,6 @@ void client_appli (char *serveur,char *service)
 		printf("J'écris au serveur\n");
 		getString(message);
 		printf("message = %s\n",message);
-		strcpy(message, "");
-		printf("message = %s\n",message);
 		sprintf(tamponEcriture, "%s", message);
 		envoi=h_writes(num_soc,tamponEcriture,BUFFERSIZE);
 		printf("Je lis ce que le serveur me dit\n");

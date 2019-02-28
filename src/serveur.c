@@ -95,8 +95,6 @@ void serveur_appli(char *service)
 		printf("J'écris au client\n");
 		getString(message);
 		printf("message = %s\n",message);
-		strcpy(message, "");
-		printf("message = %s\n",message);
 		sprintf(tamponEcriture, "%s", message);
 		envoi=h_writes(socketcree,tamponEcriture,BUFFERSIZE);
 		printf("Je lis ce que le client me dit\n");
