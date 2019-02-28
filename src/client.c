@@ -16,6 +16,7 @@
 #include <sys/signal.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "fon.h"   		/* primitives de la boite a outils */
 
@@ -64,9 +65,22 @@ int main(int argc, char *argv[])
 #define BUFFERSIZE 1024
 /*****************************************************************************/
 /* procedure correspondant au traitement du client de votre application */
+
+void getString (char message[]) {
+	strcpy(message, "");
+	char c;
+	do {
+		c=getchar();
+		strcat(message, &c);
+	}
+	while (c != '\n');
+}
+
+
 void client_appli (char *serveur,char *service)
 {
 	char tamponLecture [BUFFERSIZE+1];
+	char message [BUFFERSIZE+1];
 	char tamponEcriture [BUFFERSIZE+1];
 	int nb_octets;
 	struct sockaddr_in *socket_target;
@@ -76,25 +90,27 @@ void client_appli (char *serveur,char *service)
 	int envoi=1;
 	/*printf("choisissez le mode SOCK_STREAM (tcp) ou SOCK_DGRAM (udp)");
 	scanf(%d,typesock);*/
-	printf("test0\n");
+	
 	num_soc = h_socket(AF_INET,SOCK_STREAM);
-	printf("test1\n");
+	
 	adr_socket (service, serveur, SOCK_STREAM,&socket_target);
-	printf("test2\n");	
+	
 	h_connect(num_soc,socket_target);
 	
 	printf("connexion reussie\n");
 	
 	while (stop !=0 || envoi!=0){
 		printf("J'écris au serveur\n");
-		scanf("%s",tamponEcriture);
-		envoi=write(num_soc,tamponEcriture,BUFFERSIZE);
+		getString(message);
+		printf("message = %s\n",message);
+		strcpy(message, "");
+		printf("message = %s\n",message);
+		sprintf(tamponEcriture, "%s", message);
+		envoi=h_writes(num_soc,tamponEcriture,BUFFERSIZE);
 		printf("Je lis ce que le serveur me dit\n");
 		printf("tamponLecture : %s\n",tamponLecture);
-		printf("num_soc : %d\n",num_soc);
 		stop=h_reads(num_soc,tamponLecture,BUFFERSIZE);
 		printf("%s\n",tamponLecture);
-		if()
 		
 	}
 	printf("je suis sorti de la boucle\n");
