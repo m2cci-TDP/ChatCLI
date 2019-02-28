@@ -11,8 +11,9 @@ int main (int argc,char *argv[]) {
   	char *serveur = SERVEUR_DEFAUT; /* serveur par defaut */
   	char *service = SERVICE_DEFAUT; /* numero de service par defaut (no de port) */
     Mode mode;
-    int res = cli(argc, argv, &service, &serveur, &mode);
+    int res = cli(argc, argv, &service, &serveur, &mode); /* command line interface */
     if (res == 1) {
+      /* dispatcher */
       if (mode == CLIENT) {
         clientTCP(serveur, service);
       } else if(mode == SERVEUR) {
