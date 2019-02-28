@@ -1,5 +1,8 @@
 # ChatCLI
-Chat in command line with a server and several clients
+Chat in command line with a server and several clients <br/>
+
+**NOT WORKING** <br/>
+**ONLY THE LAST CLIENT CAN SPEAK TO OTHER**
 
 ## Compilation
 `make` <br/>

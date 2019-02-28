@@ -39,8 +39,8 @@ void rmLSocket (lSocket *S); /* destructeur */
 void addSocket (lSocket *S, int socket); /* add */
 void rmSocket (lSocket *S, int socket); /* remove */
 int getSocket (lSocket S, int noSocket); /* getter */
-void sendToAll (lSocket S, char* message, int bufferSize);
-void printAll (lSocket S);
+void sendToAll (lSocket S, char* message, int bufferSize); /* envoi du message à toutes les sockets en récursif */
+void printAll (lSocket S); /* affiche toutes les sockets ouvertes */
 
 void throwSocketReceptionError();
 void printUsage();

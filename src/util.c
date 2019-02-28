@@ -8,10 +8,12 @@
 #include "util.h"
 #include "fon.h"
 
+/* comparaison de chaine de caractère */
 int isFlag (char* string, char* flag) {
 	return strcmp(string, flag) == 0;
 }
 
+/* remplissage d'un tableau par le clavier avec vidange du buffer */
 void getString (char message[]) {
 	strcpy(message, "");
 	char c;
@@ -25,6 +27,7 @@ void getString (char message[]) {
 	//viderBuffer();
 }
 
+/* not use */
 void viderBuffer(void)
 {
 	char poubelle;
@@ -32,6 +35,7 @@ void viderBuffer(void)
 	while (poubelle != '\n' && poubelle != EOF);
 }
 
+/* help interface */
 void printUsage (){
 	printf("Usage: chat [-c/-s] [OPTIONS]\n");
 	printf("-s, --server\t\tmode server\n");
@@ -47,6 +51,7 @@ void exitWithUsage (void) {
 	exit(1);
 }
 
+/* lecture des options du CLI */
 int readStringParam(int argc, char *argv[], int index, char** output) {
 	if (index >= argc || strncmp(argv[index], "-", 1) == 0 ) {
 		return 0;
@@ -56,6 +61,7 @@ int readStringParam(int argc, char *argv[], int index, char** output) {
 	}
 }
 
+/* CLI */
 int cli (int argc, char *argv[], char **service, char **serveur, Mode* mode) {
 	*mode = -1;
 	int readingSuccess = 1;
@@ -88,6 +94,7 @@ void throwSocketReceptionError () {
 	fprintf(stderr, "Erreur lors de la réception de la socket.\n");
 }
 
+/* reception du message du serveur puis impression à l'écran */
 int readPrint (int socket) {
 	int success = h_reads(socket, bufferReception, BUFFER_SIZE) > 0; /* lecture du message avant espaces */
 	if (!success) {
@@ -97,12 +104,16 @@ int readPrint (int socket) {
 	}
 	return success;
 }
+
+/* envoi d'un chaine de caractère par TCP */
 void sendMessage (int socket, char message[]) {
 	sprintf(bufferEmission, "%s", message);
 	h_writes(socket, bufferEmission, BUFFER_SIZE);
 }
 
-/* liste chainée */
+/* liste chainée
+* voir util.h
+*/
 int getLength (lSocket S) {
 	return S.length;
 }
