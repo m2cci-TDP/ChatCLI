@@ -22,28 +22,8 @@
 
 #define SERVICE_DEFAUT "65432"
 #define SERVEUR_DEFAUT "127.0.0.1"
-#define BUFFERSIZE 1024
 
 void client_appli (char *serveur, char *service);
-
-void getString (char message[]) {
-	strcpy(message, "");
-	char c;
-	if ((c = getchar()) != '\n' && c != EOF) {
-		strcpy(message, &c);
-	}
-	while ((c = getchar()) != '\n' && c != EOF)
-	{
-		strcat(message, &c);
-	}
-}
-void sendMessage(char *message){
-#if defined (__APPLE__) && defined (__MACH__)
-	gets(message);
-#else
-	getString(message);
-#endif
-}
 
 
 /*****************************************************************************/
@@ -82,8 +62,21 @@ int main(int argc, char *argv[])
 
 	client_appli(serveur,service);
 }
+#define BUFFERSIZE 1024
 /*****************************************************************************/
 /* procedure correspondant au traitement du client de votre application */
+
+void getString (char message[]) {
+	strcpy(message, "");
+	char c;
+	if ((c = (char)getchar()) != '\n' && c != EOF) {
+		strcpy(message, &c);
+	}
+	while ((c = (char)getchar()) != '\n' && c != EOF)
+	{
+		strcat(message, &c);
+	}
+}
 
 
 void client_appli (char *serveur,char *service)
@@ -110,17 +103,17 @@ void client_appli (char *serveur,char *service)
 	
 	while (stop !=0 || envoi!=0){
 		printf("J'écris au serveur\n");
-		/* Sous Mac utiliser la fonction gets();*/
-		//gets(message);
-		/* sous Linux utiliser getString();*/
-		//getString(message);
-		sendMessage(message);
+		scanf("%s", tamponEcriture);
+		getString(message);
 		printf("message = %s\n",message);
 		sprintf(tamponEcriture, "%s", message);
 		envoi=h_writes(num_soc,tamponEcriture,BUFFERSIZE);
 		printf("Je lis ce que le serveur me dit\n");
-		stop=h_reads(num_soc,tamponLecture,BUFFERSIZE);
-		printf("%s\n",tamponLecture);
+		//do{
+			stop=h_reads(num_soc,tamponLecture,BUFFERSIZE);
+			printf("%s\n",tamponLecture);
+			//}while(strlen(tamponLecture)>0);
+		
 	}
 	printf("je suis sorti de la boucle\n");
 	h_close(num_soc);

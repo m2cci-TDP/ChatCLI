@@ -22,17 +22,28 @@
 
 #define SERVICE_DEFAUT "65432"
 #define SERVEUR_DEFAUT "127.0.0.1"
+#define BUFFERSIZE 1024
 
 
 void serveur_appli (char *service);   /* programme serveur */
 void getString (char message[]) {
 	strcpy(message, "");
 	char c;
-	do {
-		c=getchar();
+	if ((c = getchar()) != '\n' && c != EOF) {
+		strcpy(message, &c);
+	}
+	while ((c = getchar()) != '\n' && c != EOF)
+	{
 		strcat(message, &c);
 	}
-	while (c != '\n');
+}
+
+void sendMessage(char *message){
+#if defined (__APPLE__) && defined (__MACH__)
+	gets(message);
+#else
+	getString(message);
+#endif
 }
 
 
@@ -66,7 +77,7 @@ int main(int argc,char *argv[])
 	serveur_appli(service);
 }
 
-#define BUFFERSIZE 1024
+
 /******************************************************************************/
 /* Procedure correspondant au traitemnt du serveur de votre application */
 void serveur_appli(char *service)
@@ -93,12 +104,14 @@ void serveur_appli(char *service)
 	
 	while (stop !=0 || envoi!=0){
 		printf("J'écris au client\n");
-		getString(message);
-		printf("message = %s\n",message);
+		/* Sous Mac utiliser la fonction gets();*/
+		//gets(message);
+		/* sous Linux utiliser getString();*/
+		//getString(message);
+		sendMessage(message);
 		sprintf(tamponEcriture, "%s", message);
 		envoi=h_writes(socketcree,tamponEcriture,BUFFERSIZE);
 		printf("Je lis ce que le client me dit\n");
-		printf("tamponLecture : %s\n",tamponLecture);
 		stop=h_reads(socketcree,tamponLecture,BUFFERSIZE);
 		printf("%s\n",tamponLecture);
 	}
