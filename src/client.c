@@ -36,7 +36,7 @@ void getString (char message[]) {
 		strcat(message, &c);
 	}
 }
-void sendMessage(char *message){
+void scanClavier(char *message){
 #if defined (__APPLE__) && defined (__MACH__)
 	gets(message);
 #else
@@ -96,8 +96,7 @@ void client_appli (char *serveur,char *service)
 	int num_soc;
 	int stop=1;
 	int envoi=1;
-	/*printf("choisissez le mode SOCK_STREAM (tcp) ou SOCK_DGRAM (udp)");
-	scanf(%d,typesock);*/
+	
 	
 	num_soc = h_socket(AF_INET,SOCK_STREAM);
 	
@@ -108,19 +107,15 @@ void client_appli (char *serveur,char *service)
 	printf("connexion reussie\n");
 	
 	while (stop !=0 || envoi!=0){
-		printf("Je lis ce que le serveur me dit\n");
 		stop=h_reads(num_soc,tamponLecture,BUFFERSIZE);
 		printf("%s\n",tamponLecture);
-		printf("J'écris au serveur\n");
-		sendMessage(message);
-		printf("message = %s\n",message);
+		scanClavier(message);
 		sprintf(tamponEcriture, "%s", message);
 		envoi=h_writes(num_soc,tamponEcriture,BUFFERSIZE);
 	}
 	printf("je suis sorti de la boucle\n");
 	h_close(num_soc);
 
-	/* a completer .....  */
 
 }
 
