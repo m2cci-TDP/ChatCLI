@@ -1,6 +1,6 @@
 
 dirSRC = src
-OBJ = $(dirSRC)/fon.o
+OBJ = $(dirSRC)/fon.o $(dirSRC)/MasterMind.o
 objClient = $(dirSRC)/client.o
 objServeur = $(dirSRC)/serveur.o
 OPTIONS	= -lcurses

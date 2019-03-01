@@ -17,7 +17,7 @@
 #include <sys/signal.h>
 #include <sys/wait.h>
 #include <stdlib.h>
-
+#include "MasterMind.h"
 #include "fon.h"     		/* Primitives de la boite a outils */
 
 #define SERVICE_DEFAUT "65432"
@@ -108,7 +108,8 @@ void serveur_appli(char *service)
 		//gets(message);
 		/* sous Linux utiliser getString();*/
 		//getString(message);
-		sendMessage(message);
+		presentationJeu(message);
+		printf("message =:%s",message);
 		sprintf(tamponEcriture, "%s", message);
 		envoi=h_writes(socketcree,tamponEcriture,BUFFERSIZE);
 		printf("Je lis ce que le client me dit\n");

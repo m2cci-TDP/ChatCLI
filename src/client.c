@@ -17,7 +17,6 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "fon.h"   		/* primitives de la boite a outils */
 
 #define SERVICE_DEFAUT "65432"

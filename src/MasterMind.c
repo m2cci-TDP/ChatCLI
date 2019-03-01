@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define NIVEAU_MAX 8
-
+/*
 int main(void) {
 
 
@@ -11,15 +11,21 @@ int main(void) {
 	int proposition[NIVEAU_MAX];		// tableau qui contient la proposition du joueur
 
 
-	/* choix difficulté = taille de nos tableaux
-	donc plus le chiffre est grand, plus il est difficile de trouver la bonne combinaison*/
-
-	printf("----------------------------------------\n");
-	printf("----Bienvenue dans le jeu MasterMind----\n");
-	printf("----------------------------------------\n");
+	choix difficulté = taille de nos tableaux
+	donc plus le chiffre est grand, plus il est difficile de trouver la bonne combinaison
+}
+*/
+void presentationJeu(char* message[]){
+	
+	message="----------------------------------------\n----Bienvenue dans le jeu MasterMind----\n----------------------------------------\nVeuillez choisir votre niveau de difficulté entre 1 et 8 ? \n(1 très facile et 8 très difficile)";
+}
+/*
+	//printf("----------------------------------------\n");
+	//printf("----Bienvenue dans le jeu MasterMind----\n");
+	//printf("----------------------------------------\n");
 
 	do {
-	printf("Veuillez choisir votre niveau de difficulté entre 1 et 8 ? \n(1 très facile et 8 très difficile)\n");
+	//printf("Veuillez choisir votre niveau de difficulté entre 1 et 8 ? \n(1 très facile et 8 très difficile)\n");
 	printf("Niveau : ");
 	scanf("%d", &niveauDeJeu);
 	} while (niveauDeJeu < 0 && niveauDeJeu > 8);
@@ -31,9 +37,9 @@ int main(void) {
 	scanf("%c", &decision);
 
 
-	/*tirage aléatoire de la combinaison :
+	tirage aléatoire de la combinaison :
 	on fait un rand sur chaque position du tableau pour
-	tirer un chiffre de manière aléatoire (un même nombre peut apparaitre plusieurs fois)*/
+	tirer un chiffre de manière aléatoire (un même nombre peut apparaitre plusieurs fois)
 
 	int i = 0;
 			srand(time(NULL));
@@ -51,7 +57,7 @@ for (l=0 ; l< niveauDeJeu ; l++) {
 printf("]");
 
 
-/*
+
 
 	void proposerEtEvaluerUneCombinaison() {    // faire une fonction
 
@@ -100,5 +106,6 @@ printf("]");
 		}
 	}
 
-	*/
+	
 }
+*/
