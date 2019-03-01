@@ -108,18 +108,14 @@ void client_appli (char *serveur,char *service)
 	printf("connexion reussie\n");
 	
 	while (stop !=0 || envoi!=0){
+		printf("Je lis ce que le serveur me dit\n");
+		stop=h_reads(num_soc,tamponLecture,BUFFERSIZE);
+		printf("%s\n",tamponLecture);
 		printf("J'écris au serveur\n");
-		/* Sous Mac utiliser la fonction gets();*/
-		//gets(message);
-		/* sous Linux utiliser getString();*/
-		//getString(message);
 		sendMessage(message);
 		printf("message = %s\n",message);
 		sprintf(tamponEcriture, "%s", message);
 		envoi=h_writes(num_soc,tamponEcriture,BUFFERSIZE);
-		printf("Je lis ce que le serveur me dit\n");
-		stop=h_reads(num_soc,tamponLecture,BUFFERSIZE);
-		printf("%s\n",tamponLecture);
 	}
 	printf("je suis sorti de la boucle\n");
 	h_close(num_soc);

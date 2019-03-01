@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #define NIVEAU_MAX 8
 #define BUFFERSIZE 1024
-/*
+
 int main(void) {
 
 
@@ -13,7 +13,7 @@ int main(void) {
 
 
 	choix difficulté = taille de nos tableaux
-	donc plus le chiffre est grand, plus il est difficile de trouver la bonne combinaison
+		donc plus le chiffre est grand, plus il est difficile de trouver la bonne combinaison
 }
 
 char* presentationJeu(){
@@ -22,42 +22,62 @@ char* presentationJeu(){
 		
 		//"----------------------------------------\n----Bienvenue dans le jeu MasterMind----\n----------------------------------------\nVeuillez choisir votre niveau de difficulté entre 1 et 8 ? \n(1 très facile et 8 très difficile)";
 }
-/*
-	//printf("----------------------------------------\n");
-	//printf("----Bienvenue dans le jeu MasterMind----\n");
-	//printf("----------------------------------------\n");
 
-	do {
+//printf("----------------------------------------\n");
+//printf("----Bienvenue dans le jeu MasterMind----\n");
+//printf("----------------------------------------\n");
+
+do {
 	//printf("Veuillez choisir votre niveau de difficulté entre 1 et 8 ? \n(1 très facile et 8 très difficile)\n");
 	printf("Niveau : ");
 	scanf("%d", &niveauDeJeu);
-	} while (niveauDeJeu < 0 && niveauDeJeu > 8);
-	printf("\Vous avez choisi le niveau %d, êtes-vous sur de vouloir continuer ?\n", niveauDeJeu);
-	printf("\t- Si oui, tapez la lettre O et la combinaison sera générer aléatoirement?\n\t- Si non, taper la lettre N pour choisir un autre niveau\n");
+} while (niveauDeJeu < 0 && niveauDeJeu > 8);
+printf("\Vous avez choisi le niveau %d, êtes-vous sur de vouloir continuer ?\n", niveauDeJeu);
+printf("\t- Si oui, tapez la lettre O et la combinaison sera générer aléatoirement?\n\t- Si non, taper la lettre N pour choisir un autre niveau\n");
 
-	char decision;
-	printf("Choix : ");
-	scanf("%c", &decision);
+char decision;
+printf("Choix : ");
+scanf("%c", &decision);
 
 
-	tirage aléatoire de la combinaison :
-	on fait un rand sur chaque position du tableau pour
-	tirer un chiffre de manière aléatoire (un même nombre peut apparaitre plusieurs fois)
+/*tirage aléatoire de la combinaison :
+on fait un rand sur chaque position du tableau pour
+tirer un chiffre de manière aléatoire (un même nombre peut apparaitre plusieurs fois)*/
 
-	int i = 0;
-			srand(time(NULL));
-	for (i= 0 ; i < niveauDeJeu ; i++) {
-		combinaison[i] = rand()%(niveauDeJeu-1+1) + 1;
+int i = 0;
+int j;
+int a=0;
+int existeDeja;
+int suivant;
+srand(time(NULL));
+for (i= 0 ; i < niveauDeJeu ; i++) {
+	suivant =0;
+	while(suivant!=1){
+		a = rand()%(niveauDeJeu-1+1) + 1;
+		j=0;
+		existeDeja=0;
+		while(j<i+1 && existeDeja!=1){
+			if(combinaison[j]==a){
+				existeDeja=1;
+			}
+			else {
+				j++;
+			}		
+		}
+		if (j==i+1){
+			suivant=1
+		}
 	}
-
-// c'est juste pour affiche le résultat du tirage au sort afin de vérifier le rés
-int l = 0;
-printf("La combinaison tirée aléatoirement est :\n");
-printf("[ ");
-for (l=0 ; l< niveauDeJeu ; l++) {
-	printf("%d ",combinaison[l]);
+	combinaison[i]=a;
 }
-printf("]");
+	// c'est juste pour affiche le résultat du tirage au sort afin de vérifier le rés
+	int l = 0;
+	printf("La combinaison tirée aléatoirement est :\n");
+	printf("[ ");
+	for (l=0 ; l< niveauDeJeu ; l++) {
+		printf("%d ",combinaison[l]);
+	}
+	printf("]");
 
 
 
@@ -93,22 +113,22 @@ printf("]");
 			}
 			else
 			{
-			for (k=0 ; k < niveauDeJeu ; k++){
-				if (proposition[j] == combinaison[k]) {
-					nbMauvaisePlace++;
+				for (k=0 ; k < niveauDeJeu ; k++){
+					if (proposition[j] == combinaison[k]) {
+						nbMauvaisePlace++;
+					}
 				}
+			}
+
+			if (nbBonnePlace == niveauDeJeu){
+				printf("Bravo ! Vous avez trouvé la bonne combinaison !");
+			}
+			else
+			{
+				proposerEtEvaluerUneCombinaison(); // on recommance
 			}
 		}
 
-		if (nbBonnePlace == niveauDeJeu){
-			printf("Bravo ! Vous avez trouvé la bonne combinaison !");
-		}
-		else
-		{
-			proposerEtEvaluerUneCombinaison(); // on recommance
-		}
-	}
-
 	
-}
-*/
+	}
+	*/
