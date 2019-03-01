@@ -38,14 +38,23 @@ void getString (char message[]) {
 	}
 }
 
-void sendMessage(char *message){
+void scanClavier(char *message){
 #if defined (__APPLE__) && defined (__MACH__)
 	gets(message);
 #else
 	getString(message);
 #endif
 }
-
+/*
+void sendMessage (int socket, char message[]) {
+	sprintf(bufferEmission, "%s", message);
+	h_writes(socket, bufferEmission, BUFFER_SIZE);
+}
+*/
+void presentationJeu(int socket, char buffer[]){
+	sprintf(buffer, "prout");
+	h_writes(socket, buffer, BUFFERSIZE);
+}
 
 /******************************************************************************/
 /*---------------- programme serveur ------------------------------*/
@@ -108,10 +117,7 @@ void serveur_appli(char *service)
 		//gets(message);
 		/* sous Linux utiliser getString();*/
 		//getString(message);
-		presentationJeu(message);
-		printf("message =:%s",message);
-		sprintf(tamponEcriture, "%s", message);
-		envoi=h_writes(socketcree,tamponEcriture,BUFFERSIZE);
+		presentationJeu(socketcree,tamponEcriture);
 		printf("Je lis ce que le client me dit\n");
 		stop=h_reads(socketcree,tamponLecture,BUFFERSIZE);
 		printf("%s\n",tamponLecture);

@@ -24,5 +24,6 @@
 #include <netdb.h>
 
 /*------------------ definitions --------------------*/
-
-void presentationJeu(char message[]);
+/*
+char* presentationJeu();
+*/

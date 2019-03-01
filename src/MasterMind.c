@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define NIVEAU_MAX 8
+#define BUFFERSIZE 1024
 /*
 int main(void) {
 
@@ -14,10 +15,12 @@ int main(void) {
 	choix difficulté = taille de nos tableaux
 	donc plus le chiffre est grand, plus il est difficile de trouver la bonne combinaison
 }
-*/
-void presentationJeu(char* message[]){
+
+char* presentationJeu(){
 	
-	message="----------------------------------------\n----Bienvenue dans le jeu MasterMind----\n----------------------------------------\nVeuillez choisir votre niveau de difficulté entre 1 et 8 ? \n(1 très facile et 8 très difficile)";
+	sendMessage
+		
+		//"----------------------------------------\n----Bienvenue dans le jeu MasterMind----\n----------------------------------------\nVeuillez choisir votre niveau de difficulté entre 1 et 8 ? \n(1 très facile et 8 très difficile)";
 }
 /*
 	//printf("----------------------------------------\n");
