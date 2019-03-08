@@ -113,10 +113,7 @@ void client_appli (char *serveur,char *service)
 		sprintf(tamponEcriture, "%s", message);
 		envoi=h_writes(num_soc,tamponEcriture,BUFFERSIZE);
 	}
-	printf("je suis sorti de la boucle\n");
 	h_close(num_soc);
-
-
 }
 
 /*****************************************************************************/
